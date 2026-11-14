@@ -12,3 +12,6 @@ video/out
 video/assets/
 video/*.mp4
 video/*.png
+
+# Fotos de ejemplo del demo: son de terceros, solo viven en tu computadora
+public/demo/

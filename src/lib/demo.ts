@@ -4,7 +4,7 @@ import type { AlertItem, Api, Contest, Swag, SwagReport, User } from './types';
 
 // Modo demo: todo vive en el navegador (localStorage), sin AWS ni Google.
 // Sirve para ver el diseño y probar el flujo. Las empresas del ejemplo son ficticias.
-const KEY = 'swag-hunters-demo-v1';
+const KEY = 'swag-hunters-demo-v2'; // v2: datos de ejemplo con fotos
 const AUTH = 'swag-hunters-demo-auth';
 const DEMO_USER: User = { id: 'demo', name: 'Ana R.', email: 'ana@demo.example' };
 
@@ -20,32 +20,43 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 const min = (m: number) => new Date(Date.now() + m * 60_000).toISOString();
 
 function seed(): State {
-  const mk = (company: string, title: string, howTo: string, reference: string, author: string, ago: number): Swag => ({
-    id: uid(),
+  // Las fotos viven en public/demo/ y no se suben a GitHub (son de terceros). Si faltan, la app muestra el arte de reemplazo.
+  const mk = (id: string, company: string, title: string, howTo: string, reference: string, photo: string | undefined, author: string, ago: number): Swag => ({
+    id,
     company,
     companyKey: companyKey(company),
     title,
     howTo,
     reference,
+    photoKey: photo ? `/demo/${photo}.jpg` : undefined,
     authorName: author,
     mine: false,
     createdAt: min(-ago),
   });
   const swags = [
-    mk('Nimbus Labs', 'Gorra bordada', 'Escanea tu gafete en el stand y responde 3 preguntas. No piden datos de contacto de tu empresa.', 'Pasillo C, frente al escenario pequeño', 'Luis M.', 12),
-    mk('Quark Cloud', 'Termo de acero', 'Haz la demo de 5 minutos con alguien del equipo y te lo dan al terminar.', 'Esquina del Expo, junto a la entrada norte', 'Sofía T.', 70),
-    mk('Vector Systems', 'Camiseta edición limitada', 'Fila corta antes de las 10 am. Después de mediodía suele acabarse la talla M y L.', 'Stand 1420, al lado del café', 'Diego P.', 200),
-    mk('Nimbus Labs', 'Stickers holográficos', 'Los dan en la mesa de la derecha, sin hacer nada.', 'Pasillo C, mesa de la derecha', 'Marta G.', 25),
-    mk('Helix Data', 'Power bank', 'Hay que anotarse en el sorteo y estar presente a la hora del sorteo.', 'Stand 980, segundo piso', 'Sofía T.', 300),
+    mk('s1', 'Nimbus Labs', 'Tote bag crema', 'Escanea tu gafete en el stand y llévate una. No piden datos de tu empresa.', 'Pasillo C, frente al escenario pequeño', 'tote', 'Luis M.', 14),
+    mk('s2', 'Quark Cloud', 'Termo negro', 'Haz la demo de 5 minutos con alguien del equipo y te lo dan al terminar.', 'Esquina del Expo, entrada norte', 'termo', 'Sofía T.', 40),
+    mk('s4', 'Helix Data', 'Mochila blanca', 'Anótate al sorteo en el stand y vuelve a las 3 pm a la hora exacta.', 'Stand 980, segundo piso', 'mochila', 'Marta G.', 35),
+    mk('s6', 'Nimbus Labs', 'Stickers holográficos', 'Están en la mesa de la derecha, sin hacer nada.', 'Pasillo C, mesa de la derecha', undefined, 'Marta G.', 50),
+    mk('s5', 'Pixel Forge', 'Gorra #swag', 'Responde 3 preguntas en el stand y te la llevas.', 'Mesa junto a la entrada', 'gorra', 'Luis M.', 75),
+    mk('s3', 'Vector Systems', 'Polo verde edición limitada', 'Fila corta antes de las 10 am. Después se acaban las tallas M y L.', 'Stand 1420, al lado del café', 'polo', 'Diego P.', 190),
   ];
+  const rp = (id: string, swagId: string, kind: SwagReport['kind'], author: string, ago: number, text?: string): SwagReport => ({
+    id, swagId, kind, text, authorName: author, mine: false, createdAt: min(-ago),
+  });
   const reports: SwagReport[] = [
-    { id: uid(), swagId: swags[0].id, kind: 'STILL_THERE', authorName: 'Marta G.', mine: false, createdAt: min(-8) },
-    { id: uid(), swagId: swags[0].id, kind: 'TIP', text: 'Pregunta por la gorra negra, la azul ya casi no hay.', authorName: 'Diego P.', mine: false, createdAt: min(-5) },
-    { id: uid(), swagId: swags[1].id, kind: 'STILL_THERE', authorName: 'Luis M.', mine: false, createdAt: min(-30) },
-    { id: uid(), swagId: swags[4].id, kind: 'GONE', authorName: 'Luis M.', mine: false, createdAt: min(-40) },
+    rp('r1', 's1', 'STILL_THERE', 'Marta G.', 3),
+    rp('r2', 's2', 'STILL_THERE', 'Luis M.', 12),
+    rp('r3', 's4', 'STILL_THERE', 'Marta G.', 30),
+    rp('r4', 's4', 'TIP', 'Sofía T.', 26, 'Solo participan quienes se anotan antes de las 3 pm. Llega temprano.'),
+    rp('r5', 's4', 'STILL_THERE', 'Diego P.', 20),
+    rp('r6', 's6', 'STILL_THERE', 'Luis M.', 40),
+    rp('r7', 's5', 'STILL_THERE', 'Sofía T.', 60),
+    rp('r8', 's3', 'GONE', 'Luis M.', 80),
+    rp('r9', 's3', 'GONE', 'Sofía T.', 70),
   ];
-  const mkC = (company: string, title: string, howTo: string, kind: Contest['kind'], start: number, ref: string, author: string): Contest => ({
-    id: uid(),
+  const mkC = (id: string, company: string, title: string, howTo: string, kind: Contest['kind'], start: number, ref: string, author: string): Contest => ({
+    id,
     company,
     companyKey: companyKey(company),
     title,
@@ -55,12 +66,13 @@ function seed(): State {
     reference: ref,
     authorName: author,
     mine: false,
-    createdAt: min(-60),
+    createdAt: min(-90),
   });
   const contests = [
-    mkC('Helix Data', 'Sorteo de power bank', 'Estar en el stand a la hora exacta. Si no estás, sortean otra vez.', 'TIMED', 25, 'Stand 980, segundo piso', 'Sofía T.'),
-    mkC('Quark Cloud', 'Rifa de audífonos', 'Pide un ticket numerado en el mostrador antes de las 3 pm y vuelve al sorteo.', 'TICKET', 130, 'Esquina del Expo, junto a la entrada norte', 'Luis M.'),
-    mkC('Nimbus Labs', 'Reto de código en vivo', 'Pasa al stand y resuelve el reto en 10 minutos. Los 3 más rápidos ganan.', 'VISIT', 60 * 26, 'Pasillo C', 'Diego P.'),
+    mkC('c1', 'Helix Data', 'Sorteo de mochila', 'Estar en el stand a la hora exacta. Si no estás, sortean otra vez.', 'TIMED', 25, 'Stand 980, segundo piso', 'Sofía T.'),
+    mkC('c4', 'Nimbus Labs', 'Demo + tote bag', 'Pasa por el stand, mira la demo y escanea tu gafete.', 'VISIT', 4 * 60, 'Pasillo C', 'Luis M.'),
+    mkC('c2', 'Quark Cloud', 'Rifa de termos', 'Pide un número en el mostrador antes de las 8 pm y vuelve al sorteo.', 'TICKET', 6 * 60, 'Esquina del Expo, entrada norte', 'Marta G.'),
+    mkC('c3', 'Pixel Forge', 'Reto de gorra #swag', 'Resuelve el reto en 10 minutos. Ganan los 3 más rápidos.', 'VISIT', 26 * 60, 'Mesa junto a la entrada', 'Diego P.'),
   ];
   return { swags, reports, contests, alerts: [], saved: [] };
 }

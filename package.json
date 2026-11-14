@@ -8,7 +8,8 @@
     "demo": "VITE_DEMO=1 vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "icons": "node scripts/make-icons.mjs"
+    "icons": "node scripts/make-icons.mjs",
+    "build:prod": "tsc --noEmit && vite build && rm -rf dist/demo"
   },
   "dependencies": {
     "aws-amplify": "^6.22.2",

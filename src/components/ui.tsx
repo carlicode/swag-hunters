@@ -22,7 +22,11 @@ export function Photo({ k, company, className = '', alt = '' }: { k?: string; co
       alive = false;
     };
   }, [k, company]);
-  return <div className={`photo ${className}`}>{src && <img src={src} alt={alt} loading="lazy" draggable={false} />}</div>;
+  return (
+    <div className={`photo ${className}`}>
+      {src && <img src={src} alt={alt} loading="lazy" draggable={false} onError={() => setSrc(placeholderArt(company))} />}
+    </div>
+  );
 }
 
 const CHIP: Record<SwagState, string> = { LIVE: 'live', RECENT: 'recent', STALE: 'stale', MAYBE_GONE: 'maybe', GONE: 'gone' };
