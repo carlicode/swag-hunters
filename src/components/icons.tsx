@@ -48,3 +48,14 @@ export const IconGoogle = (p: SVGProps<SVGSVGElement>) => (
     <path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.1-3.1A11 11 0 0 0 2.2 7.2L5.8 10c.8-2.600 3.300-4.600 6.200-4.600z" />
   </svg>
 );
+
+export const IconEye = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base} {...p}><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
+);
+export const IconEyeOff = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base} {...p}>
+    <path d="M3 3l18 18" />
+    <path d="M10.6 6.1A9.9 9.9 0 0 1 12 5.5c6.4 0 10 6.5 10 6.5a17 17 0 0 1-3.1 3.9M6.5 6.7C3.8 8.5 2 12 2 12s3.6 6.5 10 6.5c1.7 0 3.2-.4 4.5-1" />
+    <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+  </svg>
+);

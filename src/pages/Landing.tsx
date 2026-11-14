@@ -5,10 +5,11 @@ import { api } from '../lib/api';
 import { placeholderArt } from '../lib/art';
 
 // Ejemplos para la animación del celular: empresas ficticias y arte generado, no fotos de nadie.
+// Las fotos viven en public/landing/ (no están en el repositorio). Si faltan, se usa el arte generado.
 const DEMO_CARDS = [
-  { company: 'Nimbus Labs', title: 'Tote bag crema', ref: 'Pasillo C', stamp: 'GUARDAR', cls: 'a' },
-  { company: 'Quark Cloud', title: 'Termo negro', ref: 'Entrada norte', stamp: 'PASAR', cls: 'b' },
-  { company: 'Pixel Forge', title: 'Gorra #swag', ref: 'Stand 980', stamp: 'GUARDAR', cls: 'c' },
+  { company: 'Nimbus Labs', title: 'Tote bag crema', ref: 'Pasillo C', stamp: 'GUARDAR', cls: 'a', photo: '/landing/tote.jpg' },
+  { company: 'Quark Cloud', title: 'Termo negro', ref: 'Entrada norte', stamp: 'PASAR', cls: 'b', photo: '/landing/termo.jpg' },
+  { company: 'Pixel Forge', title: 'Gorra #swag', ref: 'Stand 980', stamp: 'GUARDAR', cls: 'c', photo: '/landing/gorra.jpg' },
 ];
 
 const STEPS = [
@@ -52,11 +53,19 @@ function PhoneDemo() {
   return (
     <div className="lp-phone" aria-hidden>
       <div className="lp-phone-notch" />
-      <div className="lp-phone-bar"><i />SWAG / HUNTERS<b /></div>
+      <div className="lp-phone-bar"><i />SWAG / HUNTERS<b>ejemplo</b></div>
       <div className="lp-deck">
         {DEMO_CARDS.map((c) => (
           <div key={c.title} className={`lp-card ${c.cls}`}>
-            <img src={placeholderArt(c.company)} alt="" draggable={false} />
+            <img
+              src={c.photo}
+              alt=""
+              draggable={false}
+              onError={(e) => {
+                const art = placeholderArt(c.company);
+                if (e.currentTarget.src !== art) e.currentTarget.src = art;
+              }}
+            />
             <span className={`lp-stamp ${c.stamp === 'PASAR' ? 'no' : 'yes'}`}>{c.stamp}</span>
             <div className="lp-card-body">
               <span className="label">{c.company}</span>

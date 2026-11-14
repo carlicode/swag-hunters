@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { Collapse } from '../components/Collapse';
+import { PasswordInput } from '../components/PasswordInput';
 import { Seg } from '../components/Seg';
 import { Field } from '../components/ui';
 import { api } from '../lib/api';
@@ -58,6 +59,7 @@ export function Login() {
   const [country, setCountry] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -73,6 +75,7 @@ export function Login() {
     setError('');
     setInfo(note);
     setCode('');
+    setConfirm('');
     if (m === 'signin' || m === 'signup') history.replaceState(null, '', m === 'signup' ? '#/crear' : '#/entrar');
   };
   const enter = () => {
@@ -114,6 +117,7 @@ export function Login() {
         if (!country) return setError('Elige tu país.');
         if (!emailOk(email)) return setError('Escribe un correo válido.');
         if (!passwordOk(password)) return setError('La contraseña debe tener mínimo 8 caracteres, con letras y números.');
+        if (password !== confirm) return setError('Las contraseñas no coinciden.');
         await api.signUp({ name, country, email, password });
         go('confirm', `Te enviamos un código a ${email.trim()}. Escríbelo para confirmar tu cuenta.`);
       } else if (mode === 'confirm') {
@@ -130,6 +134,7 @@ export function Login() {
       } else if (mode === 'reset') {
         if (code.trim().length < 4) return setError('Escribe el código que te llegó al correo.');
         if (!passwordOk(password)) return setError('La contraseña debe tener mínimo 8 caracteres, con letras y números.');
+        if (password !== confirm) return setError('Las contraseñas no coinciden.');
         await api.resetPassword(email, code, password);
         setPassword('');
         go('signin', 'Listo. Entra con tu nueva contraseña.');
@@ -201,14 +206,17 @@ export function Login() {
               htmlFor="lg-pass"
               hint={mode === 'signin' ? undefined : 'Mínimo 8 caracteres, con letras y números.'}
             >
-              <input
-                id="lg-pass"
-                type="password"
-                className="input"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
-              />
+              <PasswordInput id="lg-pass" value={password} onChange={setPassword} autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} />
+            </Field>
+          </Collapse>
+
+          <Collapse open={mode === 'signup' || mode === 'reset'}>
+            <Field
+              label="Confirmar contraseña"
+              htmlFor="lg-confirm"
+              hint={confirm ? (confirm === password ? 'Las contraseñas coinciden.' : 'Todavía no coinciden.') : 'Escríbela otra vez para estar seguros.'}
+            >
+              <PasswordInput id="lg-confirm" value={confirm} onChange={setConfirm} autoComplete="new-password" />
             </Field>
           </Collapse>
 

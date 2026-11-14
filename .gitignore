@@ -15,3 +15,6 @@ video/*.png
 
 # Fotos de ejemplo del demo: son de terceros, solo viven en tu computadora
 public/demo/
+
+# Fotos de la landing: son de terceros, solo viven en tu computadora y en el sitio publicado
+public/landing/
