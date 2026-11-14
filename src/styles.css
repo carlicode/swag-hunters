@@ -123,7 +123,7 @@ p { margin: 0; }
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   min-height: 44px; padding: 0 18px; border-radius: 12px;
   border: 1px solid var(--line-strong); background: transparent; color: var(--fg);
-  font-weight: 600; font-size: 14px; text-decoration: none; transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  font-weight: 600; font-size: 14px; text-decoration: none; transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.3s, color 0.2s;
 }
 .btn:hover { background: var(--surface-2); }
 .btn:active { transform: scale(0.98); }
@@ -154,9 +154,15 @@ p { margin: 0; }
 @keyframes pulse { 50% { opacity: 0.25; } }
 @media (prefers-reduced-motion: reduce) { .chip .dot { animation: none !important; } * { transition: none !important; } }
 
-.seg { display: inline-grid; grid-auto-flow: column; padding: 3px; gap: 2px; border: 1px solid var(--line-strong); border-radius: 11px; background: var(--surface); }
-.seg button { border: 0; background: none; padding: 6px 14px; border-radius: 8px; font: 500 12px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-.seg button[aria-pressed='true'] { background: var(--surface-2); color: var(--fg); }
+.seg { position: relative; display: inline-grid; grid-auto-flow: column; padding: 3px; gap: 2px; border: 1px solid var(--line-strong); border-radius: 11px; background: var(--surface); }
+.seg.left { align-self: flex-start; }
+.seg button { position: relative; z-index: 1; border: 0; background: none; padding: 7px 15px; border-radius: 8px; font: 500 12px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); transition: color 0.3s; white-space: nowrap; }
+.seg button:hover { color: var(--fg); }
+.seg button[aria-pressed='true'] { color: var(--fg); }
+.seg-thumb {
+  position: absolute; top: 3px; bottom: 3px; left: 0; border-radius: 8px; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line-strong);
+  transition: transform 0.42s cubic-bezier(0.3, 0.8, 0.2, 1), width 0.42s cubic-bezier(0.3, 0.8, 0.2, 1);
+}
 
 .panel { border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); padding: 16px; }
 .photo { position: relative; background: var(--surface-2); overflow: hidden; }
@@ -286,3 +292,61 @@ p { margin: 0; }
 .linkbtn { background: none; border: 0; padding: 0; color: var(--accent-text); font: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 .login .box { gap: 18px; }
 .login .field > label { text-transform: uppercase; }
+
+/* ---------- Movimiento ---------- */
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes swapin { from { opacity: 0; transform: translateY(8px); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
+
+/* Cada pantalla entra con sus bloques escalonados */
+.page > * { animation: rise 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.page > *:nth-child(2) { animation-delay: 0.05s; } .page > *:nth-child(3) { animation-delay: 0.1s; }
+.page > *:nth-child(4) { animation-delay: 0.15s; } .page > *:nth-child(5) { animation-delay: 0.2s; }
+.page > *:nth-child(6) { animation-delay: 0.25s; } .page > *:nth-child(7) { animation-delay: 0.3s; }
+.page > *:nth-child(n + 8) { animation-delay: 0.35s; }
+/* Las listas aparecen una tarjeta tras otra */
+.grid > *, .day > .crow, .timeline > .tl { animation: rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.grid > *:nth-child(2), .day > .crow:nth-child(3), .timeline > .tl:nth-child(2) { animation-delay: 0.04s; }
+.grid > *:nth-child(3), .day > .crow:nth-child(4), .timeline > .tl:nth-child(3) { animation-delay: 0.08s; }
+.grid > *:nth-child(4), .day > .crow:nth-child(5), .timeline > .tl:nth-child(4) { animation-delay: 0.12s; }
+.grid > *:nth-child(5), .day > .crow:nth-child(6), .timeline > .tl:nth-child(5) { animation-delay: 0.16s; }
+.grid > *:nth-child(n + 6), .day > .crow:nth-child(n + 7), .timeline > .tl:nth-child(n + 6) { animation-delay: 0.2s; }
+
+.btn.primary:hover { box-shadow: 0 10px 34px -10px rgba(255, 200, 61, 0.65); transform: translateY(-1px); }
+.btn.primary:active { box-shadow: none; transform: scale(0.98); }
+.btn.loading { position: relative; color: transparent; pointer-events: none; }
+.btn.loading::after { content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%; border: 2px solid color-mix(in srgb, var(--accent-ink) 28%, transparent); border-top-color: var(--accent-ink); animation: rot 0.7s linear infinite; }
+
+.lcard, .crow, .panel, .suggest .item { transition: border-color 0.25s, background 0.25s, translate 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.lcard:hover, .crow:hover { border-color: var(--line-strong); translate: 0 -2px; }
+.icon-btn, .round, .chip, .pill { transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.2s; }
+.icon-btn:hover, .round:hover { transform: translateY(-1px); }
+.icon-btn:active, .round:active { transform: scale(0.94); }
+
+.tab { transition: color 0.25s; }
+.tab svg { transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.25s; }
+.tab[aria-current='page'] svg { transform: translateY(-2px) scale(1.1); }
+.scrim { animation: fade 0.25s ease-out both; }
+.input, .textarea, .select { transition: border-color 0.2s, box-shadow 0.25s, background 0.2s; }
+.input:focus, .textarea:focus, .select:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+
+/* Secciones que se despliegan y se pliegan (formulario de acceso) */
+.collapse { display: grid; grid-template-rows: 0fr; opacity: 0; transform: translateY(-6px); transition: grid-template-rows 0.42s cubic-bezier(0.3, 0.8, 0.2, 1), opacity 0.3s ease, transform 0.42s ease; }
+.collapse.open { grid-template-rows: 1fr; opacity: 1; transform: none; }
+.collapse-in { overflow: hidden; min-height: 0; }
+.collapse-pad { padding: 2px 3px 14px; margin: -2px -3px 0; }
+.form { display: flex; flex-direction: column; }
+.form > .collapse:last-of-type .collapse-pad { padding-bottom: 6px; }
+.swap { animation: swapin 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+/* Pantalla de acceso */
+.login { position: relative; overflow: hidden; }
+.login::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(700px circle at 15% 8%, rgba(255, 200, 61, 0.1), transparent 60%), radial-gradient(520px circle at 92% 92%, rgba(255, 200, 61, 0.06), transparent 60%); }
+.login .box { position: relative; gap: 18px; animation: rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.auth-head h1 { font-size: clamp(28px, 7vw, 36px); line-height: 1.08; letter-spacing: -0.03em; }
+.auth-head p { margin-top: 6px; }
+
+/* Quien prefiere menos movimiento lo tiene: todo termina al instante y sin bucles */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; transition-delay: 0s !important; scroll-behavior: auto !important; }
+}

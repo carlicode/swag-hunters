@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AlertControl } from '../components/AlertControl';
+import { Seg } from '../components/Seg';
 import { SwagRow } from '../components/SwagCard';
 import { Empty } from '../components/ui';
 import { api } from '../lib/api';
@@ -30,11 +31,17 @@ export function Me() {
         <button className="btn small" onClick={() => void api.signOut()}>Salir</button>
       </div>
 
-      <div className="seg" role="tablist" style={{ alignSelf: 'flex-start' }}>
-        <button role="tab" aria-pressed={tab === 'saved'} onClick={() => setTab('saved')}>Guardados {savedSwags.length}</button>
-        <button role="tab" aria-pressed={tab === 'alerts'} onClick={() => setTab('alerts')}>Alertas {pending.length}</button>
-        <button role="tab" aria-pressed={tab === 'mine'} onClick={() => setTab('mine')}>Mis aportes</button>
-      </div>
+      <Seg
+        label="Sección"
+        value={tab}
+        onChange={setTab}
+        className="left"
+        options={[
+          { value: 'saved', label: `Guardados ${savedSwags.length}` },
+          { value: 'alerts', label: `Alertas ${pending.length}` },
+          { value: 'mine', label: 'Mis aportes' },
+        ]}
+      />
 
       {tab === 'saved' && (
         savedSwags.length ? (

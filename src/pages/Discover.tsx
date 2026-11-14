@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Deck } from '../components/Deck';
+import { Seg } from '../components/Seg';
 import { IconGrid, IconList } from '../components/icons';
 import { SwagRow } from '../components/SwagCard';
 import { Empty } from '../components/ui';
@@ -61,10 +62,15 @@ export function Discover() {
           <br />
           {filtered.length} swags en total
         </p>
-        <div className="seg" role="group" aria-label="Vista">
-          <button aria-pressed={mode === 'deck'} onClick={() => setMode('deck')}><IconGrid style={{ width: 14, verticalAlign: -2 }} /> Mazo</button>
-          <button aria-pressed={mode === 'list'} onClick={() => setMode('list')}><IconList style={{ width: 14, verticalAlign: -2 }} /> Lista</button>
-        </div>
+        <Seg
+          label="Vista"
+          value={mode}
+          onChange={setMode}
+          options={[
+            { value: 'deck', label: <><IconGrid style={{ width: 14, verticalAlign: -2 }} /> Mazo</> },
+            { value: 'list', label: <><IconList style={{ width: 14, verticalAlign: -2 }} /> Lista</> },
+          ]}
+        />
       </div>
 
       <div className="row">

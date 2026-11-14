@@ -6,6 +6,7 @@ import type { User } from './lib/types';
 import { ContestDetail } from './pages/ContestDetail';
 import { Contests } from './pages/Contests';
 import { Discover } from './pages/Discover';
+import { Landing } from './pages/Landing';
 import { LegalPage } from './pages/Legal';
 import { Login } from './pages/Login';
 import { Me } from './pages/Me';
@@ -26,7 +27,8 @@ export default function App() {
 
   if (legal === 'privacidad' || legal === 'terminos') return <LegalPage kind={legal} />;
   if (user === undefined) return <div className="spin" role="status" aria-label="Cargando" />;
-  if (!user) return <Login />;
+  // Sin sesión: la landing es la portada; #/entrar y #/crear abren el formulario (y cualquier enlace directo también).
+  if (!user) return legal === 'descubrir' || legal === 'inicio' ? <Landing /> : <Login />;
   return (
     <StoreProvider user={user}>
       <Shell />
@@ -66,7 +68,7 @@ function Shell() {
         <a className="tab" href="#/yo" aria-current={active === 'yo' ? 'page' : undefined}><IconUser /><span>Yo</span></a>
       </nav>
 
-      <main className={`page ${wide ? 'wide' : ''}`}>{page}</main>
+      <main key={head} className={`page ${wide ? 'wide' : ''}`}>{page}</main>
 
       {adding && (
         <Sheet title="¿Qué quieres subir?" onClose={() => setAdding(false)}>

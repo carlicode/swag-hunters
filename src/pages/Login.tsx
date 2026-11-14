@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { Collapse } from '../components/Collapse';
+import { Seg } from '../components/Seg';
 import { Field } from '../components/ui';
 import { api } from '../lib/api';
+import { useRoute } from '../router';
 
 type Mode = 'signin' | 'signup' | 'confirm' | 'forgot' | 'reset';
 
@@ -33,8 +36,24 @@ function friendly(e: unknown): string {
 const emailOk = (v: string) => /^\S+@\S+\.\S+$/.test(v.trim());
 const passwordOk = (v: string) => v.length >= 8 && /[A-Za-z]/.test(v) && /\d/.test(v);
 
+const HEAD: Record<Mode, [string, string]> = {
+  signin: ['Entra a tu cuenta', 'Qué bueno verte de nuevo.'],
+  signup: ['Crea tu cuenta', 'Toma un minuto: nombre, país y correo.'],
+  confirm: ['Confirma tu correo', 'Escribe el código que te enviamos.'],
+  forgot: ['Recupera tu contraseña', 'Te enviamos un código para elegir una nueva.'],
+  reset: ['Elige una contraseña nueva', 'Escribe el código y tu nueva contraseña.'],
+};
+const CTA: Record<Mode, string> = {
+  signin: 'Entrar',
+  signup: 'Crear cuenta',
+  confirm: 'Confirmar',
+  forgot: 'Enviarme el código',
+  reset: 'Guardar contraseña',
+};
+
 export function Login() {
-  const [mode, setMode] = useState<Mode>('signin');
+  const [route] = useRoute();
+  const [mode, setMode] = useState<Mode>(route === 'crear' ? 'signup' : 'signin');
   const [name, setName] = useState('');
   const [country, setCountry] = useState('');
   const [email, setEmail] = useState('');
@@ -43,12 +62,21 @@ export function Login() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
+  // Se conserva el último texto para que el mensaje no desaparezca de golpe mientras se pliega.
+  const lastInfo = useRef('');
+  const lastError = useRef('');
+  if (info) lastInfo.current = info;
+  if (error) lastError.current = error;
 
   const go = (m: Mode, note = '') => {
     setMode(m);
     setError('');
     setInfo(note);
     setCode('');
+    if (m === 'signin' || m === 'signup') history.replaceState(null, '', m === 'signup' ? '#/crear' : '#/entrar');
+  };
+  const enter = () => {
+    location.hash = '#/descubrir';
   };
 
   async function run(fn: () => Promise<void>) {
@@ -63,6 +91,11 @@ export function Login() {
     }
   }
 
+  const needConfirm = async () => {
+    await api.resendCode(email);
+    go('confirm', `Tu cuenta aún no está confirmada. Te enviamos un código a ${email.trim()}.`);
+  };
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     void run(async () => {
@@ -70,17 +103,11 @@ export function Login() {
         if (!emailOk(email) || !password) throw Object.assign(new Error(), { name: 'NotAuthorizedException' });
         try {
           const r = await api.signIn(email, password);
-          if (r === 'confirm') {
-            await api.resendCode(email);
-            go('confirm', `Tu cuenta aún no está confirmada. Te enviamos un código a ${email.trim()}.`);
-          }
-        } catch (e) {
-          if ((e as { name?: string }).name === 'UserNotConfirmedException') {
-            await api.resendCode(email);
-            go('confirm', `Tu cuenta aún no está confirmada. Te enviamos un código a ${email.trim()}.`);
-            return;
-          }
-          throw e;
+          if (r === 'confirm') await needConfirm();
+          else enter();
+        } catch (err) {
+          if ((err as { name?: string }).name === 'UserNotConfirmedException') return needConfirm();
+          throw err;
         }
       } else if (mode === 'signup') {
         if (name.trim().length < 2) return setError('Escribe tu nombre.');
@@ -92,8 +119,10 @@ export function Login() {
       } else if (mode === 'confirm') {
         if (code.trim().length < 4) return setError('Escribe el código que te llegó al correo.');
         await api.confirmSignUp(email, code);
-        if (password) await api.signIn(email, password);
-        else go('signin', 'Cuenta confirmada. Ya puedes entrar.');
+        if (password) {
+          await api.signIn(email, password);
+          enter();
+        } else go('signin', 'Cuenta confirmada. Ya puedes entrar.');
       } else if (mode === 'forgot') {
         if (!emailOk(email)) return setError('Escribe tu correo.');
         await api.forgotPassword(email);
@@ -108,71 +137,65 @@ export function Login() {
     });
   };
 
-  const titles: Record<Mode, string> = {
-    signin: 'Entrar',
-    signup: 'Crear cuenta',
-    confirm: 'Confirma tu correo',
-    forgot: 'Recupera tu contraseña',
-    reset: 'Elige una contraseña nueva',
-  };
-  const cta: Record<Mode, string> = {
-    signin: 'Entrar',
-    signup: 'Crear cuenta',
-    confirm: 'Confirmar',
-    forgot: 'Enviarme el código',
-    reset: 'Guardar contraseña',
-  };
+  const tabs = mode === 'signin' || mode === 'signup';
+  const [title, sub] = HEAD[mode];
 
   return (
     <main className="login">
       <div className="box">
-        <span className="wordmark"><i />SWAG<span>/</span>HUNTERS</span>
-        <h1>
-          Encuentra el swag
-          <br />
-          <em>antes de que se acabe.</em>
-        </h1>
-        <p className="muted">
-          La gente sube lo que ve en los stands, confirma si sigue disponible y avisa qué hay que hacer para conseguirlo. Con concursos y alertas por correo.
-        </p>
+        <div className="row between">
+          <a className="linkbtn" href="#/">← Inicio</a>
+          <span className="wordmark"><i />SWAG<span>/</span>HUNTERS</span>
+        </div>
+
+        <div className="auth-head swap" key={mode}>
+          <h1>{title}</h1>
+          <p className="muted">{sub}</p>
+        </div>
+
         {api.demo && <p className="banner">MODO DEMO · cualquier correo y contraseña sirven, y el código es 123456</p>}
 
-        {(mode === 'signin' || mode === 'signup') && (
-          <div className="seg" role="tablist" aria-label="Acceso" style={{ alignSelf: 'flex-start' }}>
-            <button role="tab" type="button" aria-pressed={mode === 'signin'} onClick={() => go('signin')}>Entrar</button>
-            <button role="tab" type="button" aria-pressed={mode === 'signup'} onClick={() => go('signup')}>Crear cuenta</button>
-          </div>
-        )}
-        {mode !== 'signin' && mode !== 'signup' && <h2 style={{ fontSize: 20 }}>{titles[mode]}</h2>}
+        <Collapse open={tabs}>
+          <Seg
+            label="Acceso"
+            value={mode === 'signup' ? 'signup' : 'signin'}
+            onChange={(m) => go(m)}
+            className="left"
+            options={[
+              { value: 'signin', label: 'Entrar' },
+              { value: 'signup', label: 'Crear cuenta' },
+            ]}
+          />
+        </Collapse>
 
-        <form className="stack" style={{ gap: 14 }} onSubmit={submit} noValidate>
-          {mode === 'signup' && (
-            <>
-              <Field label="Tu nombre" htmlFor="lg-name">
-                <input id="lg-name" className="input" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" placeholder="Ej. Ana Rojas" />
-              </Field>
-              <Field label="País" htmlFor="lg-country">
-                <select id="lg-country" className="select" value={country} onChange={(e) => setCountry(e.target.value)} autoComplete="country-name">
-                  <option value="">Elige tu país</option>
-                  {COUNTRIES.map((c) => <option key={c}>{c}</option>)}
-                </select>
-              </Field>
-            </>
-          )}
+        <form className="form" onSubmit={submit} noValidate>
+          <Collapse open={mode === 'signup'}>
+            <Field label="Tu nombre" htmlFor="lg-name">
+              <input id="lg-name" className="input" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" placeholder="Ej. Ana Rojas" />
+            </Field>
+          </Collapse>
+          <Collapse open={mode === 'signup'}>
+            <Field label="País" htmlFor="lg-country">
+              <select id="lg-country" className="select" value={country} onChange={(e) => setCountry(e.target.value)} autoComplete="country-name">
+                <option value="">Elige tu país</option>
+                {COUNTRIES.map((c) => <option key={c}>{c}</option>)}
+              </select>
+            </Field>
+          </Collapse>
 
-          {mode !== 'confirm' && mode !== 'reset' && (
+          <Collapse open={mode !== 'confirm' && mode !== 'reset'}>
             <Field label="Correo" htmlFor="lg-email">
               <input id="lg-email" type="email" inputMode="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" placeholder="tu@correo.com" />
             </Field>
-          )}
+          </Collapse>
 
-          {(mode === 'confirm' || mode === 'reset') && (
+          <Collapse open={mode === 'confirm' || mode === 'reset'}>
             <Field label="Código" htmlFor="lg-code" hint="Te llegó por correo. Revisa también la carpeta de spam.">
               <input id="lg-code" className="input mono" inputMode="numeric" value={code} onChange={(e) => setCode(e.target.value)} autoComplete="one-time-code" placeholder="123456" />
             </Field>
-          )}
+          </Collapse>
 
-          {(mode === 'signin' || mode === 'signup' || mode === 'reset') && (
+          <Collapse open={mode === 'signin' || mode === 'signup' || mode === 'reset'}>
             <Field
               label={mode === 'reset' ? 'Contraseña nueva' : 'Contraseña'}
               htmlFor="lg-pass"
@@ -187,23 +210,23 @@ export function Login() {
                 autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
               />
             </Field>
-          )}
+          </Collapse>
 
-          {info && <p className="note" role="status">{info}</p>}
-          {error && <p className="err" role="alert">{error}</p>}
+          <Collapse open={!!info}><p className="note" role="status">{info || lastInfo.current}</p></Collapse>
+          <Collapse open={!!error}><p className="err" role="alert">{error || lastError.current}</p></Collapse>
 
-          <button className="btn primary block" disabled={busy}>{busy ? 'Un momento…' : cta[mode]}</button>
+          <button className={`btn primary block ${busy ? 'loading' : ''}`} disabled={busy}>{CTA[mode]}</button>
         </form>
 
-        <div className="row wrap" style={{ gap: 14, fontSize: 13.5 }}>
-          {mode === 'signin' && <button type="button" className="linkbtn" onClick={() => go('forgot')}>¿Olvidaste tu contraseña?</button>}
+        <div className="row wrap" style={{ gap: 14, fontSize: 13.5, minHeight: 22 }}>
+          {mode === 'signin' && <button type="button" className="linkbtn swap" onClick={() => go('forgot')}>¿Olvidaste tu contraseña?</button>}
           {mode === 'confirm' && (
-            <button type="button" className="linkbtn" onClick={() => void run(async () => { await api.resendCode(email); setInfo(`Te enviamos otro código a ${email.trim()}.`); })}>
+            <button type="button" className="linkbtn swap" onClick={() => void run(async () => { await api.resendCode(email); setInfo(`Te enviamos otro código a ${email.trim()}.`); })}>
               Reenviar el código
             </button>
           )}
           {(mode === 'forgot' || mode === 'reset' || mode === 'confirm') && (
-            <button type="button" className="linkbtn" onClick={() => go('signin')}>Volver a entrar</button>
+            <button type="button" className="linkbtn swap" onClick={() => go('signin')}>Volver a entrar</button>
           )}
         </div>
 
