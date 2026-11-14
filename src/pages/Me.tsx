@@ -24,7 +24,7 @@ export function Me() {
           <span className="avatar">{user.name.slice(0, 2).toUpperCase()}</span>
           <div>
             <h1 style={{ fontSize: 22 }}>{user.name}</h1>
-            <p className="mono muted" style={{ fontSize: 12 }}>{user.email}</p>
+            <p className="mono muted" style={{ fontSize: 12 }}>{user.email}{user.country ? ` · ${user.country}` : ''}</p>
           </div>
         </div>
         <button className="btn small" onClick={() => void api.signOut()}>Salir</button>

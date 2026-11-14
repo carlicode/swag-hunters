@@ -6,7 +6,7 @@ import type { AlertItem, Api, Contest, Swag, SwagReport, User } from './types';
 // Sirve para ver el diseño y probar el flujo. Las empresas del ejemplo son ficticias.
 const KEY = 'swag-hunters-demo-v2'; // v2: datos de ejemplo con fotos
 const AUTH = 'swag-hunters-demo-auth';
-const DEMO_USER: User = { id: 'demo', name: 'Ana R.', email: 'ana@demo.example' };
+const DEMO_USER: User = { id: 'demo', name: 'Ana R.', email: 'ana@demo.example', country: 'Bolivia' };
 
 interface State {
   swags: Swag[];
@@ -112,9 +112,28 @@ export const demoApi: Api = {
   async getUser() {
     return wait(localStorage.getItem(AUTH) ? DEMO_USER : null, 60);
   },
+  // En la demo cualquier correo y contraseña sirven, y el código de confirmación es 123456.
   async signIn() {
     localStorage.setItem(AUTH, '1');
     listeners.forEach((l) => l());
+    return 'done';
+  },
+  async signUp() {
+    await wait(null, 300);
+  },
+  async confirmSignUp(_email, code) {
+    await wait(null, 300);
+    if (code.trim() !== '123456') throw Object.assign(new Error('código incorrecto'), { name: 'CodeMismatchException' });
+  },
+  async resendCode() {
+    await wait(null, 200);
+  },
+  async forgotPassword() {
+    await wait(null, 300);
+  },
+  async resetPassword(_email, code) {
+    await wait(null, 300);
+    if (code.trim() !== '123456') throw Object.assign(new Error('código incorrecto'), { name: 'CodeMismatchException' });
   },
   async signOut() {
     localStorage.removeItem(AUTH);

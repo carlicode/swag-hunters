@@ -1,5 +1,16 @@
 import { Amplify } from 'aws-amplify';
-import { fetchAuthSession, fetchUserAttributes, getCurrentUser, signInWithRedirect, signOut } from 'aws-amplify/auth';
+import {
+  confirmResetPassword,
+  confirmSignUp as cognitoConfirmSignUp,
+  fetchAuthSession,
+  fetchUserAttributes,
+  getCurrentUser,
+  resendSignUpCode,
+  resetPassword,
+  signIn as cognitoSignIn,
+  signOut,
+  signUp as cognitoSignUp,
+} from 'aws-amplify/auth';
 import { generateClient } from 'aws-amplify/data';
 import { Hub } from 'aws-amplify/utils';
 import { getUrl, uploadData } from 'aws-amplify/storage';
@@ -11,6 +22,8 @@ import type { AlertItem, Api, Contest, ContestKind, ReportKind, Swag, SwagReport
 // amplify_outputs.json lo genera `npx ampx sandbox` o el despliegue. Si no existe, la app corre en modo demo.
 const found = import.meta.glob('../../amplify_outputs.json', { eager: true, import: 'default' });
 export const outputs = Object.values(found)[0] as Record<string, unknown> | undefined;
+
+const norm = (email: string) => email.trim().toLowerCase();
 
 let client: ReturnType<typeof generateClient<Schema>>;
 let me: User | null = null;
@@ -31,7 +44,8 @@ async function currentUser(): Promise<User | null> {
   try {
     const u = await getCurrentUser();
     const attrs = await fetchUserAttributes();
-    me = { id: u.userId, name: shortName(attrs.name, attrs.email), email: attrs.email ?? '' };
+    const country = (attrs as Record<string, string | undefined>)['custom:country'];
+    me = { id: u.userId, name: shortName(attrs.name, attrs.email), email: attrs.email ?? '', country };
   } catch {
     me = null;
   }
@@ -73,7 +87,34 @@ export const amplifyApi: Api = {
   demo: false,
 
   getUser: currentUser,
-  signIn: () => signInWithRedirect({ provider: 'Google' }),
+  async signIn(email, password) {
+    try {
+      const r = await cognitoSignIn({ username: norm(email), password });
+      return r.nextStep.signInStep === 'CONFIRM_SIGN_UP' ? 'confirm' : 'done';
+    } catch (e) {
+      if ((e as { name?: string }).name === 'UserAlreadyAuthenticatedException') return 'done';
+      throw e;
+    }
+  },
+  async signUp({ name, country, email, password }) {
+    await cognitoSignUp({
+      username: norm(email),
+      password,
+      options: { userAttributes: { email: norm(email), name: name.trim(), 'custom:country': country } },
+    });
+  },
+  async confirmSignUp(email, code) {
+    await cognitoConfirmSignUp({ username: norm(email), confirmationCode: code.trim() });
+  },
+  async resendCode(email) {
+    await resendSignUpCode({ username: norm(email) });
+  },
+  async forgotPassword(email) {
+    await resetPassword({ username: norm(email) });
+  },
+  async resetPassword(email, code, newPassword) {
+    await confirmResetPassword({ username: norm(email), confirmationCode: code.trim(), newPassword });
+  },
   signOut: () => signOut(),
   onAuthChange(cb) {
     return Hub.listen('auth', cb);

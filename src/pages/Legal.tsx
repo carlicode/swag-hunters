@@ -28,25 +28,20 @@ function Privacy() {
       </p>
 
       <Section title="Qué datos recibimos">
-        <p><strong>De tu cuenta de Google</strong> (al iniciar sesión): tu nombre, tu correo y tu identificador de cuenta. No pedimos acceso a tus contactos, tu Drive, tu calendario ni a nada más.</p>
+        <p><strong>Al crear tu cuenta</strong>: tu nombre, tu país, tu correo y una contraseña que tú eliges. La contraseña la guarda Amazon Cognito de forma cifrada y nosotros nunca la vemos. Te enviamos un código por correo para confirmar que el correo es tuyo y, si lo necesitas, para recuperar tu contraseña.</p>
         <p><strong>Lo que tú publicas</strong>: fotos de stands y de swag, textos (empresa, qué es, cómo conseguirlo, referencias, tips), avisos de "sigue ahí" o "se acabó", concursos y los swags que guardas.</p>
         <p><strong>Tus alertas</strong>: el concurso, la hora y cuántos minutos antes quieres el aviso, junto con tu correo para enviártelo.</p>
         <p><strong>Reportes de contenido</strong> que envías sobre publicaciones de otras personas.</p>
       </Section>
 
       <Section title="Para qué los usamos">
-        <p>Para que puedas entrar a la app, mostrar quién subió cada swag, enviarte por correo las alertas que tú pidas y mantener el contenido ordenado y sin abusos.</p>
+        <p>Para que puedas entrar a la app, mostrar quién subió cada swag (con tu nombre), enviarte por correo las alertas que tú pidas y mantener el contenido ordenado y sin abusos.</p>
         <p>Junto a lo que publicas se muestra <strong>tu nombre y la inicial de tu apellido</strong> (por ejemplo, "Ana R."), visible para las demás personas con sesión. Tu correo nunca se muestra a otras personas.</p>
         <p>No vendemos tus datos, no mostramos publicidad y no usamos herramientas de analítica ni seguimiento.</p>
       </Section>
 
       <Section title="Con quién se comparten">
-        <p>Solo con los servicios que hacen funcionar la app: Google (inicio de sesión) y Amazon Web Services (Cognito, DynamoDB, S3, Lambda y SES) para guardar los datos y enviar los correos. No los compartimos con nadie más.</p>
-        <p>
-          El uso que hace SWAG HUNTERS de la información recibida de las API de Google cumple con la{' '}
-          <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noreferrer">Política de datos de usuario de los servicios de API de Google</a>,
-          incluidos los requisitos de uso limitado.
-        </p>
+        <p>Solo con los servicios que hacen funcionar la app: Amazon Web Services (Cognito para las cuentas, DynamoDB y S3 para guardar los datos, y Lambda y SES para enviar los correos). No los compartimos con nadie más.</p>
       </Section>
 
       <Section title="Cuánto tiempo los guardamos">

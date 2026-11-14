@@ -5,6 +5,7 @@ export interface User {
   id: string;
   name: string; // "Carla F."
   email: string;
+  country?: string;
 }
 
 export interface Swag {
@@ -67,7 +68,12 @@ export type NewContest = Pick<Contest, 'company' | 'title' | 'howTo' | 'kind' | 
 export interface Api {
   readonly demo: boolean;
   getUser(): Promise<User | null>;
-  signIn(): Promise<void>;
+  signIn(email: string, password: string): Promise<'done' | 'confirm'>;
+  signUp(input: { name: string; country: string; email: string; password: string }): Promise<void>;
+  confirmSignUp(email: string, code: string): Promise<void>;
+  resendCode(email: string): Promise<void>;
+  forgotPassword(email: string): Promise<void>;
+  resetPassword(email: string, code: string, newPassword: string): Promise<void>;
   signOut(): Promise<void>;
   onAuthChange(cb: () => void): () => void;
 
