@@ -2,7 +2,6 @@ import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
 import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
-// @ts-expect-error generado por Amplify al desplegar
 import { env } from '$amplify/env/send-alerts';
 import type { Schema } from '../../data/resource';
 

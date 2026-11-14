@@ -4,3 +4,11 @@ dist
 .amplify
 amplify_outputs.json
 .env*
+
+video/node_modules
+video/out
+
+# Video: las fotos y los videos de ejemplo no se suben
+video/assets/
+video/*.mp4
+video/*.png

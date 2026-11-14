@@ -67,6 +67,41 @@ npx ampx sandbox
 
 Para producción, conecta el repositorio a **Amplify Hosting** (el archivo `amplify.yml` ya está listo) y define `APP_URL` con la URL final para que Google acepte el regreso del login.
 
+## Video de demo
+
+La carpeta `video/` graba la app real (en modo demo) dentro de un marco de celular con efectos tech y le pone música original sintetizada. El resultado es un video vertical de 1080×1920, unos 48 segundos.
+
+Las fotos y los videos **no están en el repositorio** (son de terceros y pesan). Para generarlo, pon tus fotos en `video/assets/` con estos nombres: `tote.jpg`, `termo.jpg`, `mochila.jpg`, `gorra.jpg` y `polo.jpg`.
+
+Necesitas Chrome y ffmpeg instalados. Desde la raíz del proyecto:
+
+```bash
+cd video && npm install && cd ..
+```
+
+```bash
+VITE_DEMO=1 npx vite --port 5199 --strictPort
+```
+
+En otra terminal, graba (tarda cerca de un minuto):
+
+```bash
+node video/record.mjs
+```
+
+Compone la música con los sonidos sincronizados a cada acción (usa la duración que imprime ffprobe):
+
+```bash
+python3 video/make_music.py 48.4
+```
+
+| Archivo | Qué hace |
+|---|---|
+| `video/stage.html` | Escenario 9:16: marco de celular, subtítulos, terminal y contadores |
+| `video/record.mjs` | Maneja la app como una persona (desliza, toca, escribe) y graba |
+| `video/seed.mjs` | Datos de ejemplo y reloj fijo en el martes de re:Invent |
+| `video/make_music.py` | Música original a 120 BPM, sin muestras ni licencias |
+
 ## Estructura
 
 ```
@@ -75,6 +110,7 @@ src/lib/            datos (AWS y demo), estado de swag, hora de Las Vegas, empre
 src/pages/          pantallas
 src/components/     mazo, tarjetas, campos, alertas
 public/             manifest, service worker e íconos
+video/              grabación del video de demo y su música
 ```
 
 ## Límites conocidos

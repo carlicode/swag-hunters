@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>SWAG HUNTERS · escenario del video</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Escenario 1080x1920 (9:16) para grabar la app dentro de un marco de celular.
+   Lo maneja video/record.mjs a través de window.D (capítulos, terminal, contadores, dedo). */
+:root { --bg:#06070a; --fg:#ecece9; --muted:#7d8089; --line:#1f2126; --accent:#ffc83d; --live:#4ade80; --mono:'JetBrains Mono',ui-monospace,Menlo,monospace; --sans:'Inter',system-ui,sans-serif; }
+* { box-sizing: border-box; }
+html, body { margin:0; width:1080px; height:1920px; overflow:hidden; background:var(--bg); color:var(--fg); font-family:var(--sans); }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; }
+
+/* Fondo: cuadrícula, resplandor ámbar tras el celular, líneas de escaneo y viñeta */
+.grid { position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px); background-size:60px 60px; }
+.glow { position:absolute; left:140px; top:520px; width:800px; height:1000px; background:radial-gradient(closest-side,rgba(255,200,61,.14),transparent 70%); filter:blur(30px); }
+.scan { position:absolute; inset:-8px 0; background:repeating-linear-gradient(0deg,rgba(255,255,255,.028) 0 1px,transparent 1px 4px); animation:scan 6s linear infinite; }
+@keyframes scan { to { transform:translateY(8px); } }
+.vig { position:absolute; inset:0; background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.65)); }
+.br { position:absolute; width:54px; height:54px; border:0 solid var(--accent); opacity:.8; }
+.br.tl { left:36px; top:36px; border-left-width:3px; border-top-width:3px; } .br.tr { right:36px; top:36px; border-right-width:3px; border-top-width:3px; }
+.br.bl { left:36px; bottom:36px; border-left-width:3px; border-bottom-width:3px; } .br.brr { right:36px; bottom:36px; border-right-width:3px; border-bottom-width:3px; }
+.side { position:absolute; font:500 18px var(--mono); letter-spacing:.2em; color:#41444b; text-transform:uppercase; transform-origin:0 0; }
+
+/* Barra superior */
+#top { position:absolute; left:96px; right:96px; top:70px; display:flex; justify-content:space-between; align-items:center; font:600 24px var(--mono); letter-spacing:.16em; text-transform:uppercase; }
+#top i { display:inline-block; width:16px; height:16px; background:var(--accent); border-radius:3px; margin-right:14px; }
+#top .r { color:var(--muted); font-weight:500; font-size:20px; }
+#top .live { color:var(--live); } #top .live::before { content:'●'; margin-right:10px; animation:blink 1.2s steps(2) infinite; }
+@keyframes blink { 50% { opacity:.2; } }
+
+/* Capítulos */
+#cap { position:absolute; left:96px; right:96px; top:132px; height:190px; }
+#cap .idx { font:600 26px var(--mono); letter-spacing:.2em; color:var(--accent); }
+#cap h1 { margin:10px 0 0; font-size:70px; line-height:1.02; letter-spacing:-.03em; font-weight:700; }
+#cap p { margin:14px 0 0; font:400 27px var(--mono); color:var(--muted); }
+#cap > * { transition:opacity .28s ease, transform .28s ease; }
+#cap.out > * { opacity:0; transform:translateY(-14px); }
+
+/* Contadores de base de datos */
+#stats { position:absolute; right:96px; top:146px; display:flex; gap:18px; }
+.stat { min-width:150px; padding:12px 18px; border:1px solid #2a2d33; border-radius:12px; background:rgba(12,13,16,.8); font-family:var(--mono); text-align:right; transition:border-color .2s, background .2s; }
+.stat b { display:block; font-size:44px; font-weight:700; line-height:1.05; font-variant-numeric:tabular-nums; }
+.stat span { font-size:15px; letter-spacing:.16em; color:var(--muted); text-transform:uppercase; }
+.stat.hit { border-color:var(--accent); background:rgba(255,200,61,.12); }
+
+/* Celular */
+#phone { position:absolute; left:196px; top:344px; width:688px; height:1456px; padding:14px; border-radius:76px; background:#0e0f12; border:2px solid #2b2e35; box-shadow:0 0 0 1px #000,0 30px 120px rgba(0,0,0,.7),0 0 90px rgba(255,200,61,.10); transition:transform .9s cubic-bezier(.2,.8,.2,1), opacity .6s; }
+#phone.hidden { transform:translateY(160px) scale(.96); opacity:0; }
+#phone .screen { position:relative; width:660px; height:1428px; border-radius:62px; overflow:hidden; background:#0a0b0d; }
+#phone::before { content:''; position:absolute; left:50%; top:26px; width:150px; height:40px; margin-left:-75px; border-radius:22px; background:#000; z-index:6; }
+#app { position:absolute; left:0; top:0; width:390px; height:844px; border:0; transform:scale(1.6923); transform-origin:0 0; background:#0a0b0d; }
+
+/* Barra de estado del celular */
+#status { position:absolute; left:0; right:0; top:0; height:92px; z-index:7; display:flex; justify-content:space-between; align-items:center; padding:12px 54px 0 62px; font:600 27px var(--sans); color:#f2f2f0; pointer-events:none; }
+#status .ic { display:flex; gap:12px; align-items:center; }
+#status svg { height:26px; width:auto; }
+
+/* Aviso de correo (simulado) */
+#notif { position:absolute; left:26px; right:26px; top:34px; z-index:8; display:flex; gap:20px; align-items:center; padding:22px 24px; border-radius:36px; background:rgba(34,36,42,.94); backdrop-filter:blur(18px); border:1px solid rgba(255,255,255,.12); box-shadow:0 20px 50px rgba(0,0,0,.5); transform:translateY(-220px); opacity:0; transition:transform .6s cubic-bezier(.2,.9,.2,1), opacity .4s; }
+#notif.show { transform:translateY(0); opacity:1; }
+#notif .ic { flex:none; width:76px; height:76px; border-radius:20px; background:var(--accent); display:grid; place-items:center; }
+#notif .ic svg { width:44px; height:44px; color:#15110a; }
+#notif .tx b { display:block; font-size:25px; letter-spacing:.01em; }
+#notif .tx small { font:500 19px var(--mono); color:#9ca0a9; letter-spacing:.06em; }
+#notif .tx span { display:block; margin-top:4px; font-size:27px; line-height:1.25; }
+
+/* Terminal */
+#term { position:absolute; left:96px; right:96px; top:1824px; height:92px; overflow:hidden; font:500 25px/1.5 var(--mono); color:#a8abb4; display:flex; flex-direction:column; justify-content:flex-end; }
+#term div { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#term div::before { content:'> '; color:var(--accent); }
+#term .ok { color:var(--live); } #term .am { color:var(--accent); }
+#term div:not(:last-child) { opacity:.45; }
+
+/* Dedo */
+#finger { position:absolute; z-index:30; width:78px; height:78px; margin:-39px 0 0 -39px; border-radius:50%; border:4px solid var(--accent); background:rgba(255,200,61,.22); pointer-events:none; opacity:0; transform:scale(1); transition:left .09s linear, top .09s linear, opacity .18s, transform .14s; box-shadow:0 0 30px rgba(255,200,61,.5); }
+#finger.down { opacity:1; transform:scale(.72); background:rgba(255,200,61,.5); }
+#finger.vis { opacity:1; }
+.ripple { position:absolute; z-index:29; width:30px; height:30px; margin:-15px 0 0 -15px; border-radius:50%; border:3px solid var(--accent); pointer-events:none; animation:rip .6s ease-out forwards; }
+@keyframes rip { to { transform:scale(4); opacity:0; } }
+
+/* Introducción y cierre */
+.full { position:absolute; inset:0; z-index:40; background:var(--bg); display:flex; flex-direction:column; justify-content:center; padding:0 110px; transition:opacity .7s ease; }
+.full.off { opacity:0; pointer-events:none; }
+.full .prompt { font:600 38px var(--mono); color:var(--accent); min-height:56px; }
+.full .prompt::after { content:'▌'; animation:blink 1s steps(2) infinite; margin-left:6px; }
+.full h2 { margin:34px 0 0; font-size:104px; line-height:1; letter-spacing:-.04em; font-weight:700; }
+.full h2 em { font-style:normal; color:var(--accent); }
+.full .sub { margin-top:30px; font:400 32px var(--mono); color:var(--muted); line-height:1.5; }
+.reveal { opacity:0; transform:translateY(24px); transition:opacity .5s ease, transform .5s ease; }
+.reveal.in { opacity:1; transform:none; }
+#outro { align-items:flex-start; }
+#outro .logo { font:700 40px var(--mono); letter-spacing:.2em; }
+#outro .logo i { display:inline-block; width:26px; height:26px; background:var(--accent); border-radius:5px; margin-right:20px; }
+#outro h2 { font-size:96px; }
+.chips { display:flex; flex-wrap:wrap; gap:14px; margin-top:44px; }
+.chip { padding:12px 22px; border:1px solid #30333a; border-radius:12px; font:600 26px var(--mono); color:#c9ccd3; background:rgba(255,255,255,.03); opacity:0; transform:translateY(14px); transition:all .4s ease; }
+.chip.in { opacity:1; transform:none; border-color:var(--accent); color:var(--accent); }
+#outro .handle { margin-top:64px; font:600 34px var(--mono); color:var(--fg); letter-spacing:.06em; }
+#outro .tiny { margin-top:20px; font:400 22px var(--mono); color:#5d6068; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="grid"></div><div class="glow"></div><div class="scan"></div><div class="vig"></div>
+  <div class="br tl"></div><div class="br tr"></div><div class="br bl"></div><div class="br brr"></div>
+  <div class="side" style="left:34px;top:1300px;transform:rotate(-90deg)">sys.online · re:invent//2026</div>
+  <div class="side" style="right:34px;top:560px;transform:rotate(90deg);transform-origin:100% 0">datos de ejemplo · v0.1</div>
+
+  <header id="top"><div><i></i>SWAG/HUNTERS</div><div class="r live">en vivo</div></header>
+
+  <section id="cap"><div class="idx" id="capIdx">00</div><h1 id="capTitle"></h1><p id="capSub"></p></section>
+  <div id="stats">
+    <div class="stat" id="stReads"><b>0</b><span>reads</span></div>
+    <div class="stat" id="stWrites"><b>0</b><span>writes</span></div>
+  </div>
+
+  <div id="phone" class="hidden">
+    <div class="screen">
+      <iframe id="app" src="/" title="SWAG HUNTERS"></iframe>
+      <div id="status"><span>5:30</span><span class="ic">
+        <svg viewBox="0 0 34 22" fill="#f2f2f0"><rect x="0" y="14" width="5" height="8" rx="1.5"/><rect x="8" y="9" width="5" height="13" rx="1.5"/><rect x="16" y="4" width="5" height="18" rx="1.5"/><rect x="24" y="0" width="5" height="22" rx="1.5"/></svg>
+        <svg viewBox="0 0 34 24" fill="none" stroke="#f2f2f0" stroke-width="3" stroke-linecap="round"><path d="M3 9a20 20 0 0 1 28 0M8 14.5a13 13 0 0 1 18 0M13 20a6 6 0 0 1 8 0"/></svg>
+        <svg viewBox="0 0 50 24" fill="none"><rect x="1.5" y="1.5" width="42" height="21" rx="6.5" stroke="#f2f2f0" stroke-opacity=".5" stroke-width="3"/><rect x="5" y="5" width="30" height="14" rx="3.5" fill="#f2f2f0"/><rect x="46" y="8" width="3" height="8" rx="1.5" fill="#f2f2f0" fill-opacity=".5"/></svg>
+      </span></div>
+      <div id="notif">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="M4 7.5l8 6 8-6"/></svg></div>
+        <div class="tx"><small>CORREO · AHORA</small><b id="nTitle"></b><span id="nBody"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="term"></div>
+  <div id="finger"></div>
+
+  <div class="full" id="intro">
+    <div class="prompt" id="introPrompt"></div>
+    <h2 class="reveal" id="introH">El swag de<br>re:Invent se<br><em>acaba en minutos.</em></h2>
+    <div class="sub reveal" id="introS">y nadie sabe dónde buscarlo.</div>
+  </div>
+
+  <div class="full off" id="outro">
+    <div class="logo reveal" id="oLogo"><i></i>SWAG/HUNTERS</div>
+    <h2 class="reveal" id="oH" style="margin-top:44px">Encuéntralo<br><em>antes que nadie.</em></h2>
+    <div class="chips" id="oChips">
+      <div class="chip">Cognito</div><div class="chip">AppSync</div><div class="chip">DynamoDB</div><div class="chip">S3</div><div class="chip">Lambda</div><div class="chip">SES</div>
+    </div>
+    <div class="handle reveal" id="oHandle">@carli.code</div>
+    <div class="tiny reveal" id="oTiny">App no oficial · sin relación con AWS ni re:Invent</div>
+  </div>
+</div>
+
+<script>
+// Control del video: record.mjs llama a estas funciones en el momento justo.
+const $ = (id) => document.getElementById(id);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const counters = { reads: 0, writes: 0 };
+
+async function typeInto(el, text, speed = 26) {
+  el.textContent = '';
+  for (const ch of text) { el.textContent += ch; await sleep(speed); }
+}
+
+window.D = {
+  ready: () => document.fonts.ready.then(() => true),
+  async intro() {
+    await typeInto($('introPrompt'), 'swag.hunt()', 70);
+    await sleep(250); $('introH').classList.add('in');
+    await sleep(900); $('introS').classList.add('in');
+  },
+  async introOut() { $('intro').classList.add('off'); $('phone').classList.remove('hidden'); },
+  cap(idx, title, sub) {
+    const c = $('cap'); c.classList.add('out');
+    setTimeout(() => {
+      $('capIdx').textContent = idx; $('capTitle').textContent = title; $('capSub').textContent = sub;
+      c.classList.remove('out');
+    }, 300);
+  },
+  term(text, cls = '') {
+    const d = document.createElement('div'); if (cls) d.className = cls; $('term').appendChild(d);
+    while ($('term').children.length > 3) $('term').firstChild.remove();
+    typeInto(d, text, 18);
+  },
+  bump(kind, n = 1) {
+    counters[kind] += n; const el = $(kind === 'reads' ? 'stReads' : 'stWrites');
+    el.querySelector('b').textContent = counters[kind]; el.classList.add('hit'); setTimeout(() => el.classList.remove('hit'), 450);
+  },
+  finger(x, y, down) {
+    const f = $('finger'); f.style.left = x + 'px'; f.style.top = y + 'px'; f.classList.add('vis'); f.classList.toggle('down', !!down);
+    if (down === 'tap') { const r = document.createElement('div'); r.className = 'ripple'; r.style.left = x + 'px'; r.style.top = y + 'px'; $('stage').appendChild(r); setTimeout(() => r.remove(), 700); }
+  },
+  fingerOff() { $('finger').classList.remove('vis', 'down'); },
+  notif(title, body) { $('nTitle').textContent = title; $('nBody').textContent = body; $('notif').classList.add('show'); },
+  notifOff() { $('notif').classList.remove('show'); },
+  async outro() {
+    $('phone').classList.add('hidden'); $('outro').classList.remove('off');
+    await sleep(500); $('oLogo').classList.add('in'); await sleep(350); $('oH').classList.add('in');
+    for (const c of document.querySelectorAll('#oChips .chip')) { await sleep(230); c.classList.add('in'); }
+    await sleep(350); $('oHandle').classList.add('in'); await sleep(250); $('oTiny').classList.add('in');
+  },
+  rect: () => { const r = $('app').getBoundingClientRect(); return { left: r.left, top: r.top, scale: r.width / 390 }; },
+};
+</script>
+</body>
+</html>
