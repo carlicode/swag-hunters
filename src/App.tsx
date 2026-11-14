@@ -6,6 +6,7 @@ import type { User } from './lib/types';
 import { ContestDetail } from './pages/ContestDetail';
 import { Contests } from './pages/Contests';
 import { Discover } from './pages/Discover';
+import { LegalPage } from './pages/Legal';
 import { Login } from './pages/Login';
 import { Me } from './pages/Me';
 import { NewContest } from './pages/NewContest';
@@ -15,6 +16,7 @@ import { go, useRoute } from './router';
 import { StoreProvider, useStore } from './store';
 
 export default function App() {
+  const [legal] = useRoute();
   const [user, setUser] = useState<User | null | undefined>(undefined);
   useEffect(() => {
     const load = () => void api.getUser().then(setUser).catch(() => setUser(null));
@@ -22,6 +24,7 @@ export default function App() {
     return api.onAuthChange(load);
   }, []);
 
+  if (legal === 'privacidad' || legal === 'terminos') return <LegalPage kind={legal} />;
   if (user === undefined) return <div className="spin" role="status" aria-label="Cargando" />;
   if (!user) return <Login />;
   return (

@@ -93,6 +93,7 @@ export function Me() {
       <hr className="rule" />
       <p className="mono muted" style={{ fontSize: 11.5, lineHeight: 1.6 }}>
         SWAG HUNTERS es una app no oficial hecha por la comunidad. No tiene relación con AWS ni con re:Invent. Las horas son de Las Vegas (PT).
+        {' '}<a href="#/privacidad">Privacidad</a> · <a href="#/terminos">Términos</a>
       </p>
       {api.demo && (
         <button className="btn ghost small" style={{ alignSelf: 'flex-start' }} onClick={() => { localStorage.clear(); location.reload(); }}>

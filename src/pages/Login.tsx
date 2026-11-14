@@ -30,6 +30,7 @@ export function Login() {
         </button>
         <p className="fine">
           App no oficial hecha por la comunidad. No tiene relación con AWS ni con re:Invent. Solo usamos tu nombre y tu correo para mostrar quién subió cada swag y enviarte tus alertas.
+          {' '}Al continuar aceptas los <a href="#/terminos">términos</a> y la <a href="#/privacidad">política de privacidad</a>.
         </p>
       </div>
     </main>
