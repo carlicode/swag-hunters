@@ -337,6 +337,32 @@ export const en = {
   'legal.privacy': 'Privacy',
   'legal.terms': 'Terms',
   'legal.backToApp': 'Back to the app',
+  // ---- onboarding tour
+  'tour.aria': 'How SWAG HUNTERS works',
+  'tour.step': '{n} / {total}',
+  'tour.skip': 'Skip',
+  'tour.next': 'Next',
+  'tour.start': "Let's hunt",
+  'tour.hint': 'Swipe or use ← → to move',
+  'tour.s1.title': 'Swipe to discover',
+  'tour.s1.text': 'Right saves the swag to your list, left passes. Tap a card to see how to get it and where the booth is.',
+  'tour.s2.title': 'Confirm, like Waze',
+  'tour.s2.text': 'At the booth, tap "Still there" or "Gone". Each report updates the status for everyone in real time.',
+  'tour.s3.title': 'Upload what you find',
+  'tour.s3.text': "Take a photo of the booth, write the company and how to get it. If someone already posted it, add your report instead of repeating it.",
+  'tour.s4.title': 'Never miss a contest',
+  'tour.s4.text': 'In Contests, tap the bell and choose how many minutes before you want an email.',
+  'tour.s5.title': 'Made by the community',
+  'tour.s5.text': 'SWAG HUNTERS is open source and made by @carli.code. Pull requests are welcome.',
+  'tour.sampleContest': 'Backpack raffle',
+  'tour.sampleMail': 'In 15 min: Backpack raffle',
+
+  // ---- credits
+  'credits.by': 'Made by',
+  'credits.prs': 'Open source: PRs welcome',
+  'credits.repo': 'GitHub repo',
+  'credits.contact': 'Contact',
+  'me.howItWorks': 'How it works',
 } satisfies Record<string, string>;
 
 export type Key = keyof typeof en;

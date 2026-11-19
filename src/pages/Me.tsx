@@ -1,6 +1,7 @@
 import { getLang, tr as t } from '../i18n';
 import { useState } from 'react';
 import { AlertControl } from '../components/AlertControl';
+import { AUTHOR_EMAIL, REPO, openTour } from '../components/Onboarding';
 import { Seg } from '../components/Seg';
 import { SwagRow } from '../components/SwagCard';
 import { Empty } from '../components/ui';
@@ -103,6 +104,11 @@ export function Me() {
         {t('me.footer')}
         {' '}<a href="#/privacidad">{t('me.privacy')}</a> · <a href="#/terminos">{t('me.terms')}</a>
       </p>
+      <p className="mono muted credits">
+        {t('credits.by')} <strong>@carli.code</strong> · <a href={REPO} target="_blank" rel="noreferrer">{t('credits.prs')}</a>
+        <br />{t('credits.contact')}: <a href={`mailto:${AUTHOR_EMAIL}`}>{AUTHOR_EMAIL}</a>
+      </p>
+      <button className="btn ghost small" style={{ alignSelf: 'flex-start' }} onClick={openTour}>{t('me.howItWorks')}</button>
       {api.demo && (
         <button className="btn ghost small" style={{ alignSelf: 'flex-start' }} onClick={() => { const l = getLang(); localStorage.clear(); localStorage.setItem('swag-hunters-lang', l); location.reload(); }}>
           {t('me.resetDemo')}

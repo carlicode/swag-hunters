@@ -119,3 +119,13 @@ video/              grabación del video de demo y su música
 - Las listas se cargan completas (pensado para un evento de pocos miles de aportes).
 - Los reportes de contenido se guardan y se revisan desde la consola de AWS; todavía no hay panel de moderación.
 - Las horas usan la hora estándar del Pacífico (UTC-8), que rige durante todo el evento.
+
+## Contribuir / Contributing
+
+Aceptamos pull requests. Abre un issue o un PR con tu idea, arreglo o traducción.
+Pull requests are welcome: open an issue or a PR with your idea, fix or translation.
+
+La app tiene inglés y español (`src/i18n/en.ts` y `src/i18n/es.ts`); si agregas texto, agrega la clave en los dos.
+The app ships in English and Spanish (`src/i18n/en.ts` and `src/i18n/es.ts`); add new keys to both.
+
+Autora / Author: **@carli.code** · carli.f.roman@gmail.com

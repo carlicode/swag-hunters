@@ -2,6 +2,7 @@ import { tr as t, useI18n } from './i18n';
 import { LangSwitch } from './i18n/LangSwitch';
 import { useEffect, useState, type ReactNode } from 'react';
 import { IconClock, IconDeck, IconPlus, IconUser } from './components/icons';
+import { Onboarding, tourSeen } from './components/Onboarding';
 import { Sheet } from './components/ui';
 import { api } from './lib/api';
 import type { User } from './lib/types';
@@ -43,6 +44,13 @@ function Shell() {
   const [head, arg] = useRoute();
   const { toastMsg } = useStore();
   const [adding, setAdding] = useState(false);
+  // Tutorial en slides: sale solo la primera vez y se puede abrir otra vez desde Yo.
+  const [tour, setTour] = useState(() => !tourSeen());
+  useEffect(() => {
+    const open = () => setTour(true);
+    window.addEventListener('swag:tour', open);
+    return () => window.removeEventListener('swag:tour', open);
+  }, []);
 
   const active = ['concursos', 'concurso', 'nuevo-concurso'].includes(head) ? 'concursos' : head === 'yo' ? 'yo' : 'descubrir';
   let page: ReactNode;
@@ -80,6 +88,7 @@ function Shell() {
           <button className="btn block" onClick={() => { setAdding(false); go('nuevo-concurso'); }}>{t('nav.uploadContest')}</button>
         </Sheet>
       )}
+      {tour && <Onboarding onClose={() => setTour(false)} />}
       {toastMsg && <div className="toast" role="status">{toastMsg}</div>}
     </div>
   );

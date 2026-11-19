@@ -5,6 +5,7 @@ import { api } from '../lib/api';
 import { placeholderArt } from '../lib/art';
 import { tr as t, type Key } from '../i18n';
 import { LangSwitch } from '../i18n/LangSwitch';
+import { AUTHOR_EMAIL, REPO } from '../components/Onboarding';
 
 // Ejemplos para la animación del celular: empresas ficticias y arte generado, no fotos de nadie.
 // Las fotos viven en public/landing/ (no están en el repositorio). Si faltan, se usa el arte generado.
@@ -216,6 +217,9 @@ export function Landing() {
       <footer className="lp-foot">
         <span className="wordmark"><i />SWAG<span>/</span>HUNTERS</span>
         <p>{t('lp.foot')}</p>
+        <p>
+          {t('credits.by')} <strong>@carli.code</strong> · <a href={REPO} target="_blank" rel="noreferrer">{t('credits.prs')}</a> · <a href={`mailto:${AUTHOR_EMAIL}`}>{AUTHOR_EMAIL}</a>
+        </p>
         <p><a href="#/privacidad">{t('me.privacy')}</a> · <a href="#/terminos">{t('me.terms')}</a></p>
       </footer>
     </div>
