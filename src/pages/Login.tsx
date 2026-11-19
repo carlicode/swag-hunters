@@ -1,3 +1,5 @@
+import { tr as t, useI18n, type Key } from '../i18n';
+import { LangSwitch } from '../i18n/LangSwitch';
 import { useRef, useState } from 'react';
 import { Collapse } from '../components/Collapse';
 import { PasswordInput } from '../components/PasswordInput';
@@ -8,51 +10,40 @@ import { useRoute } from '../router';
 
 type Mode = 'signin' | 'signup' | 'confirm' | 'forgot' | 'reset';
 
+// Códigos ISO; el nombre se muestra en el idioma elegido y se guarda en inglés para que sea uno solo.
 const COUNTRIES = [
-  'Bolivia', 'Argentina', 'Brasil', 'Chile', 'Colombia', 'Costa Rica', 'Cuba', 'Ecuador', 'El Salvador', 'España',
-  'Estados Unidos', 'Guatemala', 'Honduras', 'México', 'Nicaragua', 'Panamá', 'Paraguay', 'Perú', 'Puerto Rico',
-  'República Dominicana', 'Uruguay', 'Venezuela', 'Canadá', 'Reino Unido', 'Alemania', 'Francia', 'Italia', 'India',
-  'Japón', 'Otro',
+  'BO', 'AR', 'BR', 'CL', 'CO', 'CR', 'CU', 'EC', 'SV', 'ES', 'US', 'GT', 'HN', 'MX', 'NI', 'PA', 'PY', 'PE', 'PR',
+  'DO', 'UY', 'VE', 'CA', 'GB', 'DE', 'FR', 'IT', 'IN', 'JP',
 ];
+const countryName = (code: string, l: string) => new Intl.DisplayNames([l], { type: 'region' }).of(code) ?? code;
 
 /** Traduce los errores de Cognito a mensajes que se entienden. */
 function friendly(e: unknown): string {
   const name = (e as { name?: string })?.name ?? '';
   switch (name) {
-    case 'UsernameExistsException': return 'Ya existe una cuenta con ese correo. Prueba entrar o recuperar tu contraseña.';
-    case 'NotAuthorizedException': return 'El correo o la contraseña no son correctos.';
-    case 'UserNotFoundException': return 'El correo o la contraseña no son correctos.';
-    case 'CodeMismatchException': return 'Ese código no es correcto. Revisa tu correo e inténtalo de nuevo.';
-    case 'ExpiredCodeException': return 'El código venció. Pide uno nuevo.';
-    case 'InvalidPasswordException': return 'La contraseña debe tener mínimo 8 caracteres, con letras y números.';
-    case 'InvalidParameterException': return 'Revisa los datos: alguno no es válido.';
+    case 'UsernameExistsException': return t('auth.err.exists');
+    case 'NotAuthorizedException':
+    case 'UserNotFoundException': return t('auth.err.wrong');
+    case 'CodeMismatchException': return t('auth.err.code');
+    case 'ExpiredCodeException': return t('auth.err.expired');
+    case 'InvalidPasswordException': return t('auth.err.password');
+    case 'InvalidParameterException': return t('auth.err.param');
     case 'LimitExceededException':
     case 'TooManyRequestsException':
-    case 'TooManyFailedAttemptsException': return 'Demasiados intentos. Espera unos minutos y vuelve a probar.';
-    case 'NetworkError': return 'No hay conexión. Revisa tu internet e inténtalo otra vez.';
-    default: return 'Algo salió mal. Inténtalo otra vez en un momento.';
+    case 'TooManyFailedAttemptsException': return t('auth.err.limit');
+    case 'NetworkError': return t('auth.err.network');
+    default: return t('auth.err.other');
   }
 }
 
 const emailOk = (v: string) => /^\S+@\S+\.\S+$/.test(v.trim());
 const passwordOk = (v: string) => v.length >= 8 && /[A-Za-z]/.test(v) && /\d/.test(v);
 
-const HEAD: Record<Mode, [string, string]> = {
-  signin: ['Entra a tu cuenta', 'Qué bueno verte de nuevo.'],
-  signup: ['Crea tu cuenta', 'Toma un minuto: nombre, país y correo.'],
-  confirm: ['Confirma tu correo', 'Escribe el código que te enviamos.'],
-  forgot: ['Recupera tu contraseña', 'Te enviamos un código para elegir una nueva.'],
-  reset: ['Elige una contraseña nueva', 'Escribe el código y tu nueva contraseña.'],
-};
-const CTA: Record<Mode, string> = {
-  signin: 'Entrar',
-  signup: 'Crear cuenta',
-  confirm: 'Confirmar',
-  forgot: 'Enviarme el código',
-  reset: 'Guardar contraseña',
-};
+const head = (m: Mode) => [t(`auth.head.${m}` as Key), t(`auth.sub.${m}` as Key)] as const;
+const cta = (m: Mode) => t(`auth.cta.${m}` as Key);
 
 export function Login() {
+  const { lang } = useI18n();
   const [route] = useRoute();
   const [mode, setMode] = useState<Mode>(route === 'crear' ? 'signup' : 'signin');
   const [name, setName] = useState('');
@@ -96,7 +87,7 @@ export function Login() {
 
   const needConfirm = async () => {
     await api.resendCode(email);
-    go('confirm', `Tu cuenta aún no está confirmada. Te enviamos un código a ${email.trim()}.`);
+    go('confirm', t('auth.msg.notConfirmed', { email: email.trim() }));
   };
 
   const submit = (e: React.FormEvent) => {
@@ -113,44 +104,48 @@ export function Login() {
           throw err;
         }
       } else if (mode === 'signup') {
-        if (name.trim().length < 2) return setError('Escribe tu nombre.');
-        if (!country) return setError('Elige tu país.');
-        if (!emailOk(email)) return setError('Escribe un correo válido.');
-        if (!passwordOk(password)) return setError('La contraseña debe tener mínimo 8 caracteres, con letras y números.');
-        if (password !== confirm) return setError('Las contraseñas no coinciden.');
+        if (name.trim().length < 2) return setError(t('auth.v.name'));
+        if (!country) return setError(t('auth.v.country'));
+        if (!emailOk(email)) return setError(t('auth.v.email'));
+        if (!passwordOk(password)) return setError(t('auth.err.password'));
+        if (password !== confirm) return setError(t('auth.v.mismatch'));
         await api.signUp({ name, country, email, password });
-        go('confirm', `Te enviamos un código a ${email.trim()}. Escríbelo para confirmar tu cuenta.`);
+        go('confirm', t('auth.msg.codeSent', { email: email.trim() }));
       } else if (mode === 'confirm') {
-        if (code.trim().length < 4) return setError('Escribe el código que te llegó al correo.');
+        if (code.trim().length < 4) return setError(t('auth.v.code'));
         await api.confirmSignUp(email, code);
         if (password) {
           await api.signIn(email, password);
           enter();
-        } else go('signin', 'Cuenta confirmada. Ya puedes entrar.');
+        } else go('signin', t('auth.msg.confirmed'));
       } else if (mode === 'forgot') {
-        if (!emailOk(email)) return setError('Escribe tu correo.');
+        if (!emailOk(email)) return setError(t('auth.v.emailOnly'));
         await api.forgotPassword(email);
-        go('reset', `Si ese correo tiene cuenta, te enviamos un código a ${email.trim()}.`);
+        go('reset', t('auth.msg.resetSent', { email: email.trim() }));
       } else if (mode === 'reset') {
-        if (code.trim().length < 4) return setError('Escribe el código que te llegó al correo.');
-        if (!passwordOk(password)) return setError('La contraseña debe tener mínimo 8 caracteres, con letras y números.');
-        if (password !== confirm) return setError('Las contraseñas no coinciden.');
+        if (code.trim().length < 4) return setError(t('auth.v.code'));
+        if (!passwordOk(password)) return setError(t('auth.err.password'));
+        if (password !== confirm) return setError(t('auth.v.mismatch'));
         await api.resetPassword(email, code, password);
         setPassword('');
-        go('signin', 'Listo. Entra con tu nueva contraseña.');
+        go('signin', t('auth.msg.resetDone'));
       }
     });
   };
 
   const tabs = mode === 'signin' || mode === 'signup';
-  const [title, sub] = HEAD[mode];
+  const fineParts = t('auth.fine').split(/(\{terms\}|\{privacy\})/);
+  const [title, sub] = head(mode);
 
   return (
     <main className="login">
       <div className="box">
         <div className="row between">
-          <a className="linkbtn" href="#/">← Inicio</a>
-          <span className="wordmark"><i />SWAG<span>/</span>HUNTERS</span>
+          <a className="linkbtn" href="#/">{t('auth.home')}</a>
+          <div className="row" style={{ gap: 10 }}>
+            <span className="wordmark"><i />SWAG<span>/</span>HUNTERS</span>
+            <LangSwitch className="small" />
+          </div>
         </div>
 
         <div className="auth-head swap" key={mode}>
@@ -158,53 +153,54 @@ export function Login() {
           <p className="muted">{sub}</p>
         </div>
 
-        {api.demo && <p className="banner">MODO DEMO · cualquier correo y contraseña sirven, y el código es 123456</p>}
+        {api.demo && <p className="banner">{t('auth.demoBanner')}</p>}
 
         <Collapse open={tabs}>
           <Seg
-            label="Acceso"
+            label={t('auth.tabs')}
             value={mode === 'signup' ? 'signup' : 'signin'}
             onChange={(m) => go(m)}
             className="left"
             options={[
-              { value: 'signin', label: 'Entrar' },
-              { value: 'signup', label: 'Crear cuenta' },
+              { value: 'signin', label: t('auth.cta.signin') },
+              { value: 'signup', label: t('auth.cta.signup') },
             ]}
           />
         </Collapse>
 
         <form className="form" onSubmit={submit} noValidate>
           <Collapse open={mode === 'signup'}>
-            <Field label="Tu nombre" htmlFor="lg-name">
-              <input id="lg-name" className="input" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" placeholder="Ej. Ana Rojas" />
+            <Field label={t('auth.name')} htmlFor="lg-name">
+              <input id="lg-name" className="input" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" placeholder={t('auth.namePlaceholder')} />
             </Field>
           </Collapse>
           <Collapse open={mode === 'signup'}>
-            <Field label="País" htmlFor="lg-country">
+            <Field label={t('auth.country')} htmlFor="lg-country">
               <select id="lg-country" className="select" value={country} onChange={(e) => setCountry(e.target.value)} autoComplete="country-name">
-                <option value="">Elige tu país</option>
-                {COUNTRIES.map((c) => <option key={c}>{c}</option>)}
+                <option value="">{t('auth.chooseCountry')}</option>
+                {COUNTRIES.map((c) => ({ c, name: countryName(c, lang) })).sort((a, b) => a.name.localeCompare(b.name, lang)).map(({ c, name }) => <option key={c} value={countryName(c, 'en')}>{name}</option>)}
+                <option value="Other">{lang === 'es' ? 'Otro' : 'Other'}</option>
               </select>
             </Field>
           </Collapse>
 
           <Collapse open={mode !== 'confirm' && mode !== 'reset'}>
-            <Field label="Correo" htmlFor="lg-email">
-              <input id="lg-email" type="email" inputMode="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" placeholder="tu@correo.com" />
+            <Field label={t('auth.email')} htmlFor="lg-email">
+              <input id="lg-email" type="email" inputMode="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" placeholder={t('auth.emailPlaceholder')} />
             </Field>
           </Collapse>
 
           <Collapse open={mode === 'confirm' || mode === 'reset'}>
-            <Field label="Código" htmlFor="lg-code" hint="Te llegó por correo. Revisa también la carpeta de spam.">
+            <Field label={t('auth.code')} htmlFor="lg-code" hint={t('auth.codeHint')}>
               <input id="lg-code" className="input mono" inputMode="numeric" value={code} onChange={(e) => setCode(e.target.value)} autoComplete="one-time-code" placeholder="123456" />
             </Field>
           </Collapse>
 
           <Collapse open={mode === 'signin' || mode === 'signup' || mode === 'reset'}>
             <Field
-              label={mode === 'reset' ? 'Contraseña nueva' : 'Contraseña'}
+              label={mode === 'reset' ? t('auth.newPassword') : t('auth.password')}
               htmlFor="lg-pass"
-              hint={mode === 'signin' ? undefined : 'Mínimo 8 caracteres, con letras y números.'}
+              hint={mode === 'signin' ? undefined : t('auth.passHint')}
             >
               <PasswordInput id="lg-pass" value={password} onChange={setPassword} autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} />
             </Field>
@@ -212,9 +208,9 @@ export function Login() {
 
           <Collapse open={mode === 'signup' || mode === 'reset'}>
             <Field
-              label="Confirmar contraseña"
+              label={t('auth.confirmPassword')}
               htmlFor="lg-confirm"
-              hint={confirm ? (confirm === password ? 'Las contraseñas coinciden.' : 'Todavía no coinciden.') : 'Escríbela otra vez para estar seguros.'}
+              hint={confirm ? (confirm === password ? t('auth.confirmHintMatch') : t('auth.confirmHintDiff')) : t('auth.confirmHintEmpty')}
             >
               <PasswordInput id="lg-confirm" value={confirm} onChange={setConfirm} autoComplete="new-password" />
             </Field>
@@ -223,24 +219,27 @@ export function Login() {
           <Collapse open={!!info}><p className="note" role="status">{info || lastInfo.current}</p></Collapse>
           <Collapse open={!!error}><p className="err" role="alert">{error || lastError.current}</p></Collapse>
 
-          <button className={`btn primary block ${busy ? 'loading' : ''}`} disabled={busy}>{CTA[mode]}</button>
+          <button className={`btn primary block ${busy ? 'loading' : ''}`} disabled={busy}>{cta(mode)}</button>
         </form>
 
         <div className="row wrap" style={{ gap: 14, fontSize: 13.5, minHeight: 22 }}>
-          {mode === 'signin' && <button type="button" className="linkbtn swap" onClick={() => go('forgot')}>¿Olvidaste tu contraseña?</button>}
+          {mode === 'signin' && <button type="button" className="linkbtn swap" onClick={() => go('forgot')}>{t('auth.forgot')}</button>}
           {mode === 'confirm' && (
-            <button type="button" className="linkbtn swap" onClick={() => void run(async () => { await api.resendCode(email); setInfo(`Te enviamos otro código a ${email.trim()}.`); })}>
-              Reenviar el código
+            <button type="button" className="linkbtn swap" onClick={() => void run(async () => { await api.resendCode(email); setInfo(t('auth.msg.codeResent', { email: email.trim() })); })}>
+              {t('auth.resend')}
             </button>
           )}
           {(mode === 'forgot' || mode === 'reset' || mode === 'confirm') && (
-            <button type="button" className="linkbtn swap" onClick={() => go('signin')}>Volver a entrar</button>
+            <button type="button" className="linkbtn swap" onClick={() => go('signin')}>{t('auth.backToSignin')}</button>
           )}
         </div>
 
         <p className="fine">
-          App no oficial hecha por la comunidad. No tiene relación con AWS ni con re:Invent. Usamos tu nombre, país y correo para mostrar quién subió cada swag y enviarte tus alertas.
-          {' '}Al crear tu cuenta aceptas los <a href="#/terminos">términos</a> y la <a href="#/privacidad">política de privacidad</a>.
+          {fineParts.map((part, i) =>
+            part === '{terms}' ? <a key={i} href="#/terminos">{t('auth.termsLink')}</a>
+            : part === '{privacy}' ? <a key={i} href="#/privacidad">{t('auth.privacyLink')}</a>
+            : part,
+          )}
         </p>
       </div>
     </main>

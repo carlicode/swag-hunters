@@ -1,3 +1,4 @@
+import { tr as t } from '../i18n';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { api } from '../lib/api';
 import { placeholderArt } from '../lib/art';
@@ -53,7 +54,7 @@ export function Field({ label, hint, children, htmlFor }: { label: string; hint?
 export function PhotoPicker({
   value,
   onChange,
-  label = 'Toma una foto',
+  label,
   hint,
 }: {
   value?: Blob;
@@ -64,6 +65,7 @@ export function PhotoPicker({
   const input = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string>();
   const [busy, setBusy] = useState(false);
+  label ??= t('ui.takePhoto');
   useEffect(() => {
     if (!value) return setPreview(undefined);
     const u = URL.createObjectURL(value);
@@ -86,15 +88,15 @@ export function PhotoPicker({
     <>
       <input ref={input} type="file" accept="image/*" capture="environment" onChange={pick} className="sr" aria-label={label} />
       <div className="drop" role="button" tabIndex={0} onClick={() => input.current?.click()} onKeyDown={(e) => e.key === 'Enter' && input.current?.click()}>
-        {preview && <img src={preview} alt="Vista previa" />}
+        {preview && <img src={preview} alt={t('ui.preview')} />}
         {!preview && (
           <>
             <IconCamera />
-            <strong>{busy ? 'Procesando…' : label}</strong>
+            <strong>{busy ? t('ui.processing') : label}</strong>
             {hint && <span className="muted" style={{ fontSize: 13 }}>{hint}</span>}
           </>
         )}
-        {preview && <span className="btn small retake" style={{ background: 'var(--bg)' }}>Cambiar foto</span>}
+        {preview && <span className="btn small retake" style={{ background: 'var(--bg)' }}>{t('ui.changePhoto')}</span>}
       </div>
     </>
   );
@@ -111,7 +113,7 @@ export function Sheet({ title, onClose, children }: { title: string; onClose: ()
       <div className="sheet" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
         <div className="row between">
           <h2 style={{ fontSize: 18 }}>{title}</h2>
-          <button className="btn ghost small" onClick={onClose}>Cerrar</button>
+          <button className="btn ghost small" onClick={onClose}>{t('common.close')}</button>
         </div>
         {children}
       </div>

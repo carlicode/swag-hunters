@@ -1,3 +1,4 @@
+import { trn } from '../i18n';
 import { ago } from '../lib/time';
 import type { Swag } from '../lib/types';
 import type { SwagStatus } from '../lib/status';
@@ -19,7 +20,7 @@ export function SwagBody({ swag, status }: { swag: Swag; status: SwagStatus }) {
         </p>
       )}
       <p className="mono muted" style={{ fontSize: 11.5 }}>
-        {status.confirmations} {status.confirmations === 1 ? 'persona lo vio' : 'personas lo vieron'} · {ago(status.lastSeen)} · {swag.authorName}
+        {trn('card.sawPeople', status.confirmations)} · {ago(status.lastSeen)} · {swag.authorName}
       </p>
     </>
   );

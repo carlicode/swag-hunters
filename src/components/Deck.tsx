@@ -1,3 +1,4 @@
+import { tr as t } from '../i18n';
 import { useEffect, useRef, useState } from 'react';
 import { go } from '../router';
 import type { Swag } from '../lib/types';
@@ -93,8 +94,8 @@ export function Deck({ items, onSave, onPass }: { items: Item[]; onSave: (s: Swa
                 <Photo k={it.swag.photoKey} company={it.swag.company} alt={`${it.swag.company}: ${it.swag.title}`} />
                 {isTop && (
                   <>
-                    <span className="stamp save" style={{ opacity: Math.max(0, progress) }}>Guardar</span>
-                    <span className="stamp pass" style={{ opacity: Math.max(0, -progress) }}>Pasar</span>
+                    <span className="stamp save" style={{ opacity: Math.max(0, progress) }}>{t('deck.save')}</span>
+                    <span className="stamp pass" style={{ opacity: Math.max(0, -progress) }}>{t('deck.pass')}</span>
                   </>
                 )}
                 <div className="body">
@@ -106,12 +107,12 @@ export function Deck({ items, onSave, onPass }: { items: Item[]; onSave: (s: Swa
           .reverse()}
       </div>
       <div className="deckbtns">
-        <button className="round pass" onClick={() => decide('pass')} aria-label="Pasar"><IconX /></button>
-        <button className="round info" onClick={() => top && go(`swag/${top.swag.id}`)} aria-label="Ver detalle"><IconInfo /></button>
-        <button className="round save" onClick={() => decide('save')} aria-label="Guardar"><IconHeart /></button>
+        <button className="round pass" onClick={() => decide('pass')} aria-label={t('deck.pass')}><IconX /></button>
+        <button className="round info" onClick={() => top && go(`swag/${top.swag.id}`)} aria-label={t('deck.detailAria')}><IconInfo /></button>
+        <button className="round save" onClick={() => decide('save')} aria-label={t('deck.save')}><IconHeart /></button>
       </div>
       <p className="mono muted deckhint">
-        ← pasar · guardar → · toca para ver cómo conseguirlo
+        {t('deck.hint')}
       </p>
     </div>
   );

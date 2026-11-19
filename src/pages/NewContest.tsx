@@ -1,20 +1,17 @@
+import { tr as t, type Key } from '../i18n';
 import { useMemo, useState } from 'react';
 import { CompanyField } from '../components/CompanyField';
 import { IconBack } from '../components/icons';
 import { Field, PhotoPicker } from '../components/ui';
 import { api } from '../lib/api';
 import { companyKey } from '../lib/company';
-import { EVENT_DAYS, dayKey, fmtDay, fmtTime, vegasToIso } from '../lib/time';
+import { EVENT_DAYS, dayKey, dayLabel, fmtDay, fmtTime, vegasToIso } from '../lib/time';
 import type { ContestKind } from '../lib/types';
 import { back, go } from '../router';
 import { useStore } from '../store';
-import { KIND_LABEL } from './Contests';
+import { kindLabel } from './Contests';
 
-const KINDS: { v: ContestKind; help: string }[] = [
-  { v: 'VISIT', help: 'Vas al stand y participas en el momento.' },
-  { v: 'TICKET', help: 'Pides un ticket o número y vuelves al sorteo.' },
-  { v: 'TIMED', help: 'Tienes que estar a una hora exacta.' },
-];
+const KINDS: ContestKind[] = ['VISIT', 'TICKET', 'TIMED'];
 
 export function NewContest() {
   const { contests, refresh, toast } = useStore();
@@ -23,7 +20,7 @@ export function NewContest() {
   const [howTo, setHowTo] = useState('');
   const [reference, setReference] = useState('');
   const [kind, setKind] = useState<ContestKind>('TIMED');
-  const [day, setDay] = useState<string>(EVENT_DAYS[1].iso);
+  const [day, setDay] = useState<string>(EVENT_DAYS[1]);
   const [time, setTime] = useState('15:00');
   const [photo, setPhoto] = useState<Blob>();
   const [busy, setBusy] = useState(false);
@@ -43,10 +40,10 @@ export function NewContest() {
     try {
       const c = await api.createContest({ company, title, howTo, kind, startsAt, reference, photo });
       await refresh();
-      toast('Concurso agregado');
+      toast(t('nc.added'));
       go(`concurso/${c.id}`);
     } catch {
-      toast('No se pudo guardar. Revisa tu conexión e intenta otra vez.');
+      toast(t('nc.saveFail'));
     } finally {
       setBusy(false);
     }
@@ -55,62 +52,62 @@ export function NewContest() {
   return (
     <form className="stack" style={{ gap: 18 }} onSubmit={submit} noValidate>
       <div className="row between">
-        <button type="button" className="btn ghost small" onClick={back}><IconBack style={{ width: 16 }} /> Cancelar</button>
-        <span className="label">Nuevo concurso</span>
+        <button type="button" className="btn ghost small" onClick={back}><IconBack style={{ width: 16 }} /> {t('common.cancel')}</button>
+        <span className="label">{t('nc.new')}</span>
       </div>
-      <h1 style={{ fontSize: 26 }}>Agregar un concurso</h1>
+      <h1 style={{ fontSize: 26 }}>{t('nc.title')}</h1>
 
       <CompanyField value={company} onChange={(v) => { setCompany(v); setDistinct(false); }} known={contests} />
 
-      <Field label="Qué se sortea o qué se gana" htmlFor="ct">
-        <input id="ct" className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ej. Sorteo de power bank" />
+      <Field label={t('nc.prizeLabel')} htmlFor="ct">
+        <input id="ct" className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('nc.prizePlaceholder')} />
       </Field>
 
       <div className="field">
-        <span className="label">Cómo se participa</span>
-        <div className="stack" style={{ gap: 8 }} role="radiogroup" aria-label="Tipo de concurso">
+        <span className="label">{t('nc.howToJoin')}</span>
+        <div className="stack" style={{ gap: 8 }} role="radiogroup" aria-label={t('nc.kindAria')}>
           {KINDS.map((k) => (
-            <button type="button" key={k.v} role="radio" aria-checked={kind === k.v} className="panel" onClick={() => setKind(k.v)} style={{ textAlign: 'left', borderColor: kind === k.v ? 'var(--accent)' : undefined }}>
-              <strong>{KIND_LABEL[k.v]}</strong>
-              <span className="muted" style={{ display: 'block', fontSize: 13 }}>{k.help}</span>
+            <button type="button" key={k} role="radio" aria-checked={kind === k} className="panel" onClick={() => setKind(k)} style={{ textAlign: 'left', borderColor: kind === k ? 'var(--accent)' : undefined }}>
+              <strong>{kindLabel(k)}</strong>
+              <span className="muted" style={{ display: 'block', fontSize: 13 }}>{t(`nc.help.${k}` as Key)}</span>
             </button>
           ))}
         </div>
       </div>
 
       <div className="grid two">
-        <Field label="Día" htmlFor="d">
+        <Field label={t('nc.day')} htmlFor="d">
           <select id="d" className="select" value={day} onChange={(e) => setDay(e.target.value)}>
-            {EVENT_DAYS.map((d) => <option key={d.iso} value={d.iso}>{d.label}</option>)}
+            {EVENT_DAYS.map((d) => <option key={d} value={d}>{dayLabel(d)}</option>)}
           </select>
         </Field>
-        <Field label="Hora de Las Vegas" htmlFor="tm" hint={`Se verá como ${fmtDay(startsAt)} ${fmtTime(startsAt)}.`}>
+        <Field label={t('nc.vegasTime')} htmlFor="tm" hint={t('nc.willShowAs', { when: `${fmtDay(startsAt)} ${fmtTime(startsAt)}` })}>
           <input id="tm" type="time" className="input" value={time} onChange={(e) => setTime(e.target.value)} />
         </Field>
       </div>
 
       {similar.length > 0 && !distinct && (
         <div className="suggest">
-          <p><strong>Ya hay un concurso de {similar[0].company} ese día.</strong> ¿Es el mismo?</p>
+          <p><strong>{t('nc.similarTitle', { company: similar[0].company })}</strong> {t('nc.same')}</p>
           {similar.map((c) => (
             <div className="item" key={c.id}>
               <div className="grow"><strong style={{ fontSize: 14 }}>{c.title}</strong><div className="mono muted" style={{ fontSize: 12 }}>{fmtTime(c.startsAt)}</div></div>
-              <a className="btn small primary" href={`#/concurso/${c.id}`}>Es este</a>
+              <a className="btn small primary" href={`#/concurso/${c.id}`}>{t('ns.itsThis')}</a>
             </div>
           ))}
-          <button type="button" className="btn small" onClick={() => setDistinct(true)}>Es distinto</button>
+          <button type="button" className="btn small" onClick={() => setDistinct(true)}>{t('nc.different')}</button>
         </div>
       )}
 
-      <Field label="Qué hay que hacer" htmlFor="ch" hint="Pasos claros: dónde, a qué hora, qué llevar.">
-        <textarea id="ch" className="textarea" value={howTo} onChange={(e) => setHowTo(e.target.value)} placeholder="Ej. Estar en el stand a la hora exacta. Si no estás, sortean otra vez." />
+      <Field label={t('nc.whatToDo')} htmlFor="ch" hint={t('nc.whatHint')}>
+        <textarea id="ch" className="textarea" value={howTo} onChange={(e) => setHowTo(e.target.value)} placeholder={t('nc.whatPlaceholder')} />
       </Field>
-      <Field label="Referencia del stand" htmlFor="rf">
-        <input id="rf" className="input" value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Ej. Stand 980, segundo piso" />
+      <Field label={t('nc.boothRef')} htmlFor="rf">
+        <input id="rf" className="input" value={reference} onChange={(e) => setReference(e.target.value)} placeholder={t('nc.boothPlaceholder')} />
       </Field>
-      <PhotoPicker value={photo} onChange={setPhoto} label="Foto del stand (opcional)" />
+      <PhotoPicker value={photo} onChange={setPhoto} label={t('nc.photo')} />
 
-      <button className="btn primary block" disabled={!ready || busy}>{busy ? 'Guardando…' : 'Agregar concurso'}</button>
+      <button className="btn primary block" disabled={!ready || busy}>{busy ? t('nc.saving') : t('nc.add')}</button>
     </form>
   );
 }

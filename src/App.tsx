@@ -1,3 +1,5 @@
+import { tr as t, useI18n } from './i18n';
+import { LangSwitch } from './i18n/LangSwitch';
 import { useEffect, useState, type ReactNode } from 'react';
 import { IconClock, IconDeck, IconPlus, IconUser } from './components/icons';
 import { Sheet } from './components/ui';
@@ -18,6 +20,7 @@ import { StoreProvider, useStore } from './store';
 
 export default function App() {
   const [legal] = useRoute();
+  useI18n(); // al cambiar de idioma se vuelve a pintar toda la app
   const [user, setUser] = useState<User | null | undefined>(undefined);
   useEffect(() => {
     const load = () => void api.getUser().then(setUser).catch(() => setUser(null));
@@ -26,7 +29,7 @@ export default function App() {
   }, []);
 
   if (legal === 'privacidad' || legal === 'terminos') return <LegalPage kind={legal} />;
-  if (user === undefined) return <div className="spin" role="status" aria-label="Cargando" />;
+  if (user === undefined) return <div className="spin" role="status" aria-label={t('common.loading')} />;
   // Sin sesión: la landing es la portada; #/entrar y #/crear abren el formulario (y cualquier enlace directo también).
   if (!user) return legal === 'descubrir' || legal === 'inicio' ? <Landing /> : <Login />;
   return (
@@ -58,22 +61,23 @@ function Shell() {
     <div className="app">
       <header className="topbar">
         <a className="wordmark" href="#/descubrir"><i />SWAG<span>/</span>HUNTERS</a>
+        <LangSwitch className="small" />
       </header>
 
       {/* Fuera del encabezado: su backdrop-filter rompería el position: fixed de la barra. */}
-      <nav className="tabbar" aria-label="Principal">
-        <a className="tab" href="#/descubrir" aria-current={active === 'descubrir' ? 'page' : undefined}><IconDeck /><span>Descubrir</span></a>
-        <a className="tab" href="#/concursos" aria-current={active === 'concursos' ? 'page' : undefined}><IconClock /><span>Concursos</span></a>
-        <button className="tab plus" onClick={() => setAdding(true)} aria-label="Subir"><span className="disc"><IconPlus style={{ width: 22, height: 22 }} /><span className="plus-text">Subir</span></span></button>
-        <a className="tab" href="#/yo" aria-current={active === 'yo' ? 'page' : undefined}><IconUser /><span>Yo</span></a>
+      <nav className="tabbar" aria-label={t('common.mainNav')}>
+        <a className="tab" href="#/descubrir" aria-current={active === 'descubrir' ? 'page' : undefined}><IconDeck /><span>{t('nav.discover')}</span></a>
+        <a className="tab" href="#/concursos" aria-current={active === 'concursos' ? 'page' : undefined}><IconClock /><span>{t('nav.contests')}</span></a>
+        <button className="tab plus" onClick={() => setAdding(true)} aria-label={t('nav.upload')}><span className="disc"><IconPlus style={{ width: 22, height: 22 }} /><span className="plus-text">{t('nav.upload')}</span></span></button>
+        <a className="tab" href="#/yo" aria-current={active === 'yo' ? 'page' : undefined}><IconUser /><span>{t('nav.me')}</span></a>
       </nav>
 
       <main key={head} className={`page ${wide ? 'wide' : ''}`}>{page}</main>
 
       {adding && (
-        <Sheet title="¿Qué quieres subir?" onClose={() => setAdding(false)}>
-          <button className="btn primary block" onClick={() => { setAdding(false); go('nuevo'); }}>Un swag que encontré</button>
-          <button className="btn block" onClick={() => { setAdding(false); go('nuevo-concurso'); }}>Un concurso con hora</button>
+        <Sheet title={t('nav.uploadTitle')} onClose={() => setAdding(false)}>
+          <button className="btn primary block" onClick={() => { setAdding(false); go('nuevo'); }}>{t('nav.uploadSwag')}</button>
+          <button className="btn block" onClick={() => { setAdding(false); go('nuevo-concurso'); }}>{t('nav.uploadContest')}</button>
         </Sheet>
       )}
       {toastMsg && <div className="toast" role="status">{toastMsg}</div>}

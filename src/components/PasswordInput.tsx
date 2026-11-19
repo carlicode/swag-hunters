@@ -1,3 +1,4 @@
+import { tr as t } from '../i18n';
 import { useState } from 'react';
 import { IconEye, IconEyeOff } from './icons';
 
@@ -20,7 +21,7 @@ export function PasswordInput({
       <button
         type="button"
         className="pw-btn"
-        aria-label={shown ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+        aria-label={shown ? t('ui.hidePassword') : t('ui.showPassword')}
         aria-pressed={shown}
         onMouseDown={(e) => e.preventDefault()}
         onClick={() => setShown((v) => !v)}

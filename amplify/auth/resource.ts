@@ -6,8 +6,10 @@ export const auth = defineAuth({
   loginWith: {
     email: {
       verificationEmailStyle: 'CODE',
-      verificationEmailSubject: 'Tu código de SWAG HUNTERS',
+      // Cognito no sabe el idioma de cada persona: el correo va en inglés y en español.
+      verificationEmailSubject: 'Your SWAG HUNTERS code / Tu código de SWAG HUNTERS',
       verificationEmailBody: (createCode) =>
+        `Your SWAG HUNTERS code is ${createCode()}. Enter it in the app to continue. If you didn't ask for it, ignore this email.\n\n` +
         `Tu código de SWAG HUNTERS es ${createCode()}. Escríbelo en la app para continuar. Si no lo pediste, ignora este correo.`,
     },
   },

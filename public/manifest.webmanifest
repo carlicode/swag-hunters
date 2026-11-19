@@ -1,7 +1,7 @@
 {
   "name": "SWAG HUNTERS",
   "short_name": "SWAG HUNTERS",
-  "description": "Encuentra el swag y los concursos de re:Invent. App no oficial.",
+  "description": "Find re:Invent swag and contests. Unofficial app.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0b0d",

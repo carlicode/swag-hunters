@@ -3,23 +3,23 @@ import { IconBell, IconCheck, IconDeck, IconPin } from '../components/icons';
 import '../landing.css';
 import { api } from '../lib/api';
 import { placeholderArt } from '../lib/art';
+import { tr as t, type Key } from '../i18n';
+import { LangSwitch } from '../i18n/LangSwitch';
 
 // Ejemplos para la animación del celular: empresas ficticias y arte generado, no fotos de nadie.
 // Las fotos viven en public/landing/ (no están en el repositorio). Si faltan, se usa el arte generado.
 const DEMO_CARDS = [
-  { company: 'Nimbus Labs', title: 'Tote bag crema', ref: 'Pasillo C', stamp: 'GUARDAR', cls: 'a', photo: '/landing/tote.jpg' },
-  { company: 'Quark Cloud', title: 'Termo negro', ref: 'Entrada norte', stamp: 'PASAR', cls: 'b', photo: '/landing/termo.jpg' },
-  { company: 'Pixel Forge', title: 'Gorra #swag', ref: 'Stand 980', stamp: 'GUARDAR', cls: 'c', photo: '/landing/gorra.jpg' },
-];
+  { company: 'Nimbus Labs', n: 1, save: true, cls: 'a', photo: '/landing/tote.jpg' },
+  { company: 'Quark Cloud', n: 2, save: false, cls: 'b', photo: '/landing/termo.jpg' },
+  { company: 'Pixel Forge', n: 3, save: true, cls: 'c', photo: '/landing/gorra.jpg' },
+] as const;
 
 const STEPS = [
-  { tag: 'swipe()', title: 'Descubre', text: 'Desliza como en Tinder: a la derecha guardas, a la izquierda pasas. Lo disponible y confirmado hace poco sale primero.', Icon: IconDeck },
-  { tag: 'confirm()', title: 'Confirma', text: 'Como Waze: avisa si sigue ahí o se acabó. El estado se actualiza con lo que reporta la gente en tiempo real.', Icon: IconCheck },
-  { tag: 'dedupe()', title: 'Sin duplicados', text: 'Si alguien ya subió ese swag, la app te lo muestra y sumas tu aviso o tu foto en vez de repetirlo.', Icon: IconPin },
-  { tag: 'alert()', title: 'Alertas', text: 'Pide un aviso por correo unos minutos antes de un concurso y no te lo pierdas, aunque estés en otro pasillo.', Icon: IconBell },
-];
-
-const TICKER = ['TOTE BAGS', 'TERMOS', 'GORRAS', 'STICKERS', 'POLERAS', 'MOCHILAS', 'POWER BANKS', 'SORTEOS', 'RIFAS', 'LIBRETAS'];
+  { tag: 'swipe()', n: 1, Icon: IconDeck },
+  { tag: 'confirm()', n: 2, Icon: IconCheck },
+  { tag: 'dedupe()', n: 3, Icon: IconPin },
+  { tag: 'alert()', n: 4, Icon: IconBell },
+] as const;
 
 // Cada palabra entra con su propio retardo. El espacio va fuera del span: dentro de un inline-block se pierde.
 const words = (text: string, start: number, cls = '') =>
@@ -53,10 +53,10 @@ function PhoneDemo() {
   return (
     <div className="lp-phone" aria-hidden>
       <div className="lp-phone-notch" />
-      <div className="lp-phone-bar"><i />SWAG / HUNTERS<b>ejemplo</b></div>
+      <div className="lp-phone-bar"><i />SWAG / HUNTERS<b>{t('lp.example')}</b></div>
       <div className="lp-deck">
         {DEMO_CARDS.map((c) => (
-          <div key={c.title} className={`lp-card ${c.cls}`}>
+          <div key={c.cls} className={`lp-card ${c.cls}`}>
             <img
               src={c.photo}
               alt=""
@@ -66,12 +66,12 @@ function PhoneDemo() {
                 if (e.currentTarget.src !== art) e.currentTarget.src = art;
               }}
             />
-            <span className={`lp-stamp ${c.stamp === 'PASAR' ? 'no' : 'yes'}`}>{c.stamp}</span>
+            <span className={`lp-stamp ${c.save ? 'yes' : 'no'}`}>{c.save ? t('lp.stampSave') : t('lp.stampPass')}</span>
             <div className="lp-card-body">
               <span className="label">{c.company}</span>
-              <strong>{c.title}</strong>
-              <small><IconPin style={{ width: 12 }} /> {c.ref}</small>
-              <span className="lp-live"><i /> Disponible ahora</span>
+              <strong>{t(`lp.c${c.n}.title` as Key)}</strong>
+              <small><IconPin style={{ width: 12 }} /> {t(`lp.c${c.n}.ref` as Key)}</small>
+              <span className="lp-live"><i /> {t('status.live')}</span>
             </div>
           </div>
         ))}
@@ -139,35 +139,36 @@ export function Landing() {
 
       <header className="lp-top">
         <a className="wordmark" href="#/"><i />SWAG<span>/</span>HUNTERS</a>
-        <nav className="row" style={{ gap: 6 }} aria-label="Principal">
-          <button type="button" className="lp-link" onClick={() => document.getElementById('como')?.scrollIntoView({ behavior: 'smooth' })}>Cómo funciona</button>
-          <a className="btn small" href="#/entrar">Entrar</a>
+        <nav className="row" style={{ gap: 6 }} aria-label={t('common.mainNav')}>
+          <button type="button" className="lp-link" onClick={() => document.getElementById('como')?.scrollIntoView({ behavior: 'smooth' })}>{t('lp.how')}</button>
+          <LangSwitch className="small" />
+          <a className="btn small" href="#/entrar">{t('lp.signIn')}</a>
         </nav>
       </header>
 
       <section className="lp-hero">
         <div className="lp-copy">
           <span className="lp-eyebrow lp-rise" style={{ '--d': '0ms' } as CSSProperties}>
-            <i /> re:Invent 2026<span className="lp-hide-sm"> · Las Vegas</span> · no oficial
+            <i /> re:Invent 2026<span className="lp-hide-sm">{t('lp.eyebrowLV')}</span> · {t('lp.eyebrow')}
           </span>
           <h1 className="lp-title">
-            {words('Encuentra el swag', 1)}
+            {words(t('lp.title1'), 1)}
             <br />
-            {words('antes de que se acabe.', 4, 'amber')}
+            {words(t('lp.title2'), t('lp.title1').split(' ').length + 1, 'amber')}
           </h1>
           <p className="lp-lead lp-rise" style={{ '--d': '650ms' } as CSSProperties}>
-            La comunidad sube lo que ve en los stands, confirma si sigue disponible y avisa qué hay que hacer para conseguirlo. Con concursos y alertas por correo.
+            {t('lp.lead')}
           </p>
           <div className="lp-cta lp-rise" style={{ '--d': '800ms' } as CSSProperties}>
-            <a className="btn primary lg" href="#/crear">Crear cuenta</a>
-            <a className="btn lg" href="#/entrar">Ya tengo cuenta</a>
+            <a className="btn primary lg" href="#/crear">{t('lp.create')}</a>
+            <a className="btn lg" href="#/entrar">{t('lp.haveAccount')}</a>
           </div>
           <ul className="lp-badges lp-rise" style={{ '--d': '950ms' } as CSSProperties}>
-            <li>Gratis</li>
-            <li>Sin descargar nada</li>
-            <li>Hecha por la comunidad</li>
+            <li>{t('lp.b1')}</li>
+            <li>{t('lp.b2')}</li>
+            <li>{t('lp.b3')}</li>
           </ul>
-          {api.demo && <p className="banner" style={{ alignSelf: 'flex-start' }}>MODO DEMO · datos de ejemplo, sin AWS</p>}
+          {api.demo && <p className="banner" style={{ alignSelf: 'flex-start' }}>{t('lp.demoBanner')}</p>}
         </div>
 
         <div className="lp-stage lp-rise" style={{ '--d': '500ms' } as CSSProperties}>
@@ -178,44 +179,44 @@ export function Landing() {
 
       <div className="lp-marquee" aria-hidden>
         <div className="lp-marquee-track">
-          {[...TICKER, ...TICKER, ...TICKER, ...TICKER].map((t, i) => (
-            <span key={i}>{t}<em>/</em></span>
+          {Array.from({ length: 4 }, () => t('lp.ticker').split('|')).flat().map((w, i) => (
+            <span key={i}>{w}<em>/</em></span>
           ))}
         </div>
       </div>
 
       <section className="lp-steps" id="como">
         <div className="lp-head reveal">
-          <span className="label">Cómo funciona</span>
-          <h2>Cuatro cosas, nada más.</h2>
+          <span className="label">{t('lp.how')}</span>
+          <h2>{t('lp.howHead')}</h2>
         </div>
         <div className="lp-grid">
-          {STEPS.map(({ tag, title, text, Icon }, i) => (
-            <article key={title} className="lp-step reveal" style={{ '--i': i } as CSSProperties}>
+          {STEPS.map(({ tag, n, Icon }, i) => (
+            <article key={tag} className="lp-step reveal" style={{ '--i': i } as CSSProperties}>
               <div className="lp-step-top">
                 <span className="lp-ic"><Icon /></span>
                 <code>{tag}</code>
               </div>
-              <h3>{title}</h3>
-              <p>{text}</p>
+              <h3>{t(`lp.s${n}.title` as Key)}</h3>
+              <p>{t(`lp.s${n}.text` as Key)}</p>
             </article>
           ))}
         </div>
       </section>
 
       <section className="lp-final reveal">
-        <h2>Hecha por y para quienes<br />van a <em>re:Invent</em>.</h2>
-        <p>Crear tu cuenta toma un minuto: nombre, país y correo. Te llega un código para confirmar y listo.</p>
+        <h2>{t('lp.finalA')}<br />{t('lp.finalB')} <em>re:Invent</em>.</h2>
+        <p>{t('lp.finalText')}</p>
         <div className="lp-cta">
-          <a className="btn primary lg" href="#/crear">Crear cuenta gratis</a>
-          <a className="btn lg" href="#/entrar">Entrar</a>
+          <a className="btn primary lg" href="#/crear">{t('lp.createFree')}</a>
+          <a className="btn lg" href="#/entrar">{t('lp.signIn')}</a>
         </div>
       </section>
 
       <footer className="lp-foot">
         <span className="wordmark"><i />SWAG<span>/</span>HUNTERS</span>
-        <p>App no oficial hecha por la comunidad. No tiene relación con AWS ni con re:Invent.</p>
-        <p><a href="#/privacidad">Privacidad</a> · <a href="#/terminos">Términos</a></p>
+        <p>{t('lp.foot')}</p>
+        <p><a href="#/privacidad">{t('me.privacy')}</a> · <a href="#/terminos">{t('me.terms')}</a></p>
       </footer>
     </div>
   );

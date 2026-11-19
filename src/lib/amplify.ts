@@ -1,4 +1,5 @@
 import { Amplify } from 'aws-amplify';
+import { getLang } from '../i18n';
 import {
   confirmResetPassword,
   confirmSignUp as cognitoConfirmSignUp,
@@ -35,7 +36,7 @@ if (outputs) {
 
 /** "Carla Florida" -> "Carla F." Mostramos solo nombre y la inicial del apellido. */
 function shortName(full?: string, fallbackEmail?: string): string {
-  const base = (full || fallbackEmail?.split('@')[0] || 'Anónimo').trim();
+  const base = (full || fallbackEmail?.split('@')[0] || 'Anonymous').trim();
   const [first, ...rest] = base.split(/\s+/);
   return rest.length ? `${first} ${rest[rest.length - 1][0].toUpperCase()}.` : first;
 }
@@ -162,9 +163,9 @@ export const amplifyApi: Api = {
       howTo: input.howTo.trim(),
       reference: input.reference?.trim() || undefined,
       photoKey,
-      authorName: user?.name ?? 'Anónimo',
+      authorName: user?.name ?? 'Anonymous',
     });
-    if (!data) throw new Error(errors?.[0]?.message ?? 'No se pudo guardar');
+    if (!data) throw new Error(errors?.[0]?.message ?? 'Could not save');
     return {
       id: data.id,
       company: data.company,
@@ -187,9 +188,9 @@ export const amplifyApi: Api = {
       kind: input.kind,
       text: input.text?.trim() || undefined,
       photoKey,
-      authorName: user?.name ?? 'Anónimo',
+      authorName: user?.name ?? 'Anonymous',
     });
-    if (!data) throw new Error(errors?.[0]?.message ?? 'No se pudo guardar');
+    if (!data) throw new Error(errors?.[0]?.message ?? 'Could not save');
     return {
       id: data.id,
       swagId: data.swagId,
@@ -235,9 +236,9 @@ export const amplifyApi: Api = {
       endsAt: input.endsAt,
       reference: input.reference?.trim() || undefined,
       photoKey,
-      authorName: user?.name ?? 'Anónimo',
+      authorName: user?.name ?? 'Anonymous',
     });
-    if (!data) throw new Error(errors?.[0]?.message ?? 'No se pudo guardar');
+    if (!data) throw new Error(errors?.[0]?.message ?? 'Could not save');
     return {
       id: data.id,
       company: data.company,
@@ -271,7 +272,7 @@ export const amplifyApi: Api = {
 
   async createAlert(contest, minutesBefore) {
     const user = me ?? (await currentUser());
-    if (!user?.email) throw new Error('Tu cuenta no tiene correo');
+    if (!user?.email) throw new Error('Your account has no email');
     // Una sola alerta por concurso: reemplaza la anterior si existe.
     const existing = await client.models.Alert.list({ filter: { contestId: { eq: contest.id } } });
     await Promise.all(existing.data.map((a) => client.models.Alert.delete({ id: a.id })));
@@ -282,11 +283,12 @@ export const amplifyApi: Api = {
       company: contest.company,
       startsAt: contest.startsAt,
       minutesBefore,
+      lang: getLang(),
       fireAt,
       email: user.email,
       sentFlag: 'N',
     });
-    if (!data) throw new Error(errors?.[0]?.message ?? 'No se pudo crear la alerta');
+    if (!data) throw new Error(errors?.[0]?.message ?? 'Could not create the alert');
     return { id: data.id, contestId: contest.id, title: contest.title, company: contest.company, startsAt: contest.startsAt, minutesBefore, fireAt, sentFlag: 'N' };
   },
 

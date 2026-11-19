@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { tr, useI18n } from './i18n';
 import { api } from './lib/api';
 import { swagStatus, type SwagStatus } from './lib/status';
 import type { AlertItem, Contest, Swag, SwagReport, User } from './lib/types';
@@ -35,6 +36,7 @@ export function StoreProvider({ user, children }: { user: User; children: ReactN
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [now, setNow] = useState(Date.now());
   const timer = useRef<number>(0);
+  const { lang } = useI18n(); // las etiquetas de estado cambian con el idioma
 
   const refresh = useCallback(async () => {
     try {
@@ -87,7 +89,7 @@ export function StoreProvider({ user, children }: { user: User; children: ReactN
       try {
         await api.setSaved(swagId, next);
       } catch {
-        toast('No se pudo guardar. Revisa tu conexión.');
+        toast(tr('store.saveFail'));
         void refresh();
       }
     },
@@ -109,7 +111,7 @@ export function StoreProvider({ user, children }: { user: User; children: ReactN
       toast,
       toastMsg,
     }),
-    [user, loading, swags, reports, contests, alerts, saved, now, refresh, toggleSaved, toast, toastMsg],
+    [user, loading, swags, reports, contests, alerts, saved, now, lang, refresh, toggleSaved, toast, toastMsg],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

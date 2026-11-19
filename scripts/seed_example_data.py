@@ -47,26 +47,26 @@ def build_items():
     vegas = lambda day, hhmm: iso(datetime.fromisoformat(f'{day}T{hhmm}:00-08:00'))
 
     swags = [
-        ('demo-s1', 'Nimbus Labs', 'Tote bag crema', 'Escanea tu gafete en el stand y llévate una. No piden datos de tu empresa.', 'Pasillo C, frente al escenario pequeño', 'tote', 14),
-        ('demo-s2', 'Quark Cloud', 'Termo negro', 'Haz la demo de 5 minutos con alguien del equipo y te lo dan al terminar.', 'Esquina del Expo, entrada norte', 'termo', 40),
-        ('demo-s4', 'Helix Data', 'Mochila blanca', 'Anótate al sorteo en el stand y vuelve a las 3 pm a la hora exacta.', 'Stand 980, segundo piso', 'mochila', 35),
-        ('demo-s6', 'Nimbus Labs', 'Stickers holográficos', 'Están en la mesa de la derecha, sin hacer nada.', 'Pasillo C, mesa de la derecha', None, 50),
-        ('demo-s5', 'Pixel Forge', 'Gorra #swag', 'Responde 3 preguntas en el stand y te la llevas.', 'Mesa junto a la entrada', 'gorra', 75),
-        ('demo-s3', 'Vector Systems', 'Polo verde edición limitada', 'Fila corta antes de las 10 am. Después se acaban las tallas M y L.', 'Stand 1420, al lado del café', 'polo', 190),
+        ('demo-s1', 'Nimbus Labs', 'Cream tote bag', "Scan your badge at the booth and take one. They don't ask for company details.", 'Aisle C, in front of the small stage', 'tote', 14),
+        ('demo-s2', 'Quark Cloud', 'Black thermos', 'Do the 5-minute demo with someone from the team and they give it to you at the end.', 'Expo corner, north entrance', 'termo', 40),
+        ('demo-s4', 'Helix Data', 'White backpack', 'Sign up for the raffle at the booth and come back at exactly 3 pm.', 'Booth 980, second floor', 'mochila', 35),
+        ('demo-s6', 'Nimbus Labs', 'Holographic stickers', 'They are on the table on the right, no strings attached.', 'Aisle C, table on the right', None, 50),
+        ('demo-s5', 'Pixel Forge', '#swag cap', 'Answer 3 questions at the booth and it is yours.', 'Table next to the entrance', 'gorra', 75),
+        ('demo-s3', 'Vector Systems', 'Limited edition green polo', 'Short line before 10 am. After that sizes M and L run out.', 'Booth 1420, next to the coffee stand', 'polo', 190),
     ]
     reports = [
         ('demo-r1', 'demo-s1', 'STILL_THERE', None, 3), ('demo-r2', 'demo-s2', 'STILL_THERE', None, 12),
         ('demo-r3', 'demo-s4', 'STILL_THERE', None, 30),
-        ('demo-r4', 'demo-s4', 'TIP', 'Solo participan quienes se anotan antes de las 3 pm. Llega temprano.', 26),
+        ('demo-r4', 'demo-s4', 'TIP', 'Only people who sign up before 3 pm can join. Get there early.', 26),
         ('demo-r5', 'demo-s4', 'STILL_THERE', None, 20), ('demo-r6', 'demo-s6', 'STILL_THERE', None, 40),
         ('demo-r7', 'demo-s5', 'STILL_THERE', None, 60),
         ('demo-r8', 'demo-s3', 'GONE', None, 80), ('demo-r9', 'demo-s3', 'GONE', None, 70),
     ]
     contests = [
-        ('demo-c1', 'Helix Data', 'Sorteo de mochila', 'Estar en el stand a la hora exacta. Si no estás, sortean otra vez.', 'TIMED', ('2026-12-01', '17:55'), 'Stand 980, segundo piso'),
-        ('demo-c4', 'Nimbus Labs', 'Demo + tote bag', 'Pasa por el stand, mira la demo y escanea tu gafete.', 'VISIT', ('2026-12-01', '21:30'), 'Pasillo C'),
-        ('demo-c2', 'Quark Cloud', 'Rifa de termos', 'Pide un número en el mostrador antes de las 8 pm y vuelve al sorteo.', 'TICKET', ('2026-12-01', '23:30'), 'Esquina del Expo, entrada norte'),
-        ('demo-c3', 'Pixel Forge', 'Reto de gorra #swag', 'Resuelve el reto en 10 minutos. Ganan los 3 más rápidos.', 'VISIT', ('2026-12-02', '19:30'), 'Mesa junto a la entrada'),
+        ('demo-c1', 'Helix Data', 'Backpack raffle', 'Be at the booth at the exact time. If you are not there, they draw again.', 'TIMED', ('2026-12-01', '17:55'), 'Booth 980, second floor'),
+        ('demo-c4', 'Nimbus Labs', 'Demo + tote bag', 'Stop by the booth, watch the demo and scan your badge.', 'VISIT', ('2026-12-01', '21:30'), 'Aisle C'),
+        ('demo-c2', 'Quark Cloud', 'Thermos raffle', 'Get a number at the counter before 8 pm and come back for the draw.', 'TICKET', ('2026-12-01', '23:30'), 'Expo corner, north entrance'),
+        ('demo-c3', 'Pixel Forge', '#swag cap challenge', 'Solve the challenge in 10 minutes. The 3 fastest win.', 'VISIT', ('2026-12-02', '19:30'), 'Table next to the entrance'),
     ]
 
     def S(v):

@@ -4,7 +4,7 @@ import type { AlertItem, Api, Contest, Swag, SwagReport, User } from './types';
 
 // Modo demo: todo vive en el navegador (localStorage), sin AWS ni Google.
 // Sirve para ver el diseño y probar el flujo. Las empresas del ejemplo son ficticias.
-const KEY = 'swag-hunters-demo-v2'; // v2: datos de ejemplo con fotos
+const KEY = 'swag-hunters-demo-v3'; // v2: datos de ejemplo con fotos
 const AUTH = 'swag-hunters-demo-auth';
 const DEMO_USER: User = { id: 'demo', name: 'Ana R.', email: 'ana@demo.example', country: 'Bolivia' };
 
@@ -34,12 +34,12 @@ function seed(): State {
     createdAt: min(-ago),
   });
   const swags = [
-    mk('s1', 'Nimbus Labs', 'Tote bag crema', 'Escanea tu gafete en el stand y llévate una. No piden datos de tu empresa.', 'Pasillo C, frente al escenario pequeño', 'tote', 'Luis M.', 14),
-    mk('s2', 'Quark Cloud', 'Termo negro', 'Haz la demo de 5 minutos con alguien del equipo y te lo dan al terminar.', 'Esquina del Expo, entrada norte', 'termo', 'Sofía T.', 40),
-    mk('s4', 'Helix Data', 'Mochila blanca', 'Anótate al sorteo en el stand y vuelve a las 3 pm a la hora exacta.', 'Stand 980, segundo piso', 'mochila', 'Marta G.', 35),
-    mk('s6', 'Nimbus Labs', 'Stickers holográficos', 'Están en la mesa de la derecha, sin hacer nada.', 'Pasillo C, mesa de la derecha', undefined, 'Marta G.', 50),
-    mk('s5', 'Pixel Forge', 'Gorra #swag', 'Responde 3 preguntas en el stand y te la llevas.', 'Mesa junto a la entrada', 'gorra', 'Luis M.', 75),
-    mk('s3', 'Vector Systems', 'Polo verde edición limitada', 'Fila corta antes de las 10 am. Después se acaban las tallas M y L.', 'Stand 1420, al lado del café', 'polo', 'Diego P.', 190),
+    mk('s1', 'Nimbus Labs', 'Cream tote bag', 'Scan your badge at the booth and take one. They don\'t ask for company details.', 'Aisle C, in front of the small stage', 'tote', 'Luis M.', 14),
+    mk('s2', 'Quark Cloud', 'Black thermos', 'Do the 5-minute demo with someone from the team and they give it to you at the end.', 'Expo corner, north entrance', 'termo', 'Sofia T.', 40),
+    mk('s4', 'Helix Data', 'White backpack', 'Sign up for the raffle at the booth and come back at exactly 3 pm.', 'Booth 980, second floor', 'mochila', 'Marta G.', 35),
+    mk('s6', 'Nimbus Labs', 'Holographic stickers', 'They are on the table on the right, no strings attached.', 'Aisle C, table on the right', undefined, 'Marta G.', 50),
+    mk('s5', 'Pixel Forge', '#swag cap', 'Answer 3 questions at the booth and it is yours.', 'Table next to the entrance', 'gorra', 'Luis M.', 75),
+    mk('s3', 'Vector Systems', 'Limited edition green polo', 'Short line before 10 am. After that sizes M and L run out.', 'Booth 1420, next to the coffee stand', 'polo', 'Diego P.', 190),
   ];
   const rp = (id: string, swagId: string, kind: SwagReport['kind'], author: string, ago: number, text?: string): SwagReport => ({
     id, swagId, kind, text, authorName: author, mine: false, createdAt: min(-ago),
@@ -48,12 +48,12 @@ function seed(): State {
     rp('r1', 's1', 'STILL_THERE', 'Marta G.', 3),
     rp('r2', 's2', 'STILL_THERE', 'Luis M.', 12),
     rp('r3', 's4', 'STILL_THERE', 'Marta G.', 30),
-    rp('r4', 's4', 'TIP', 'Sofía T.', 26, 'Solo participan quienes se anotan antes de las 3 pm. Llega temprano.'),
+    rp('r4', 's4', 'TIP', 'Sofia T.', 26, 'Only people who sign up before 3 pm can join. Get there early.'),
     rp('r5', 's4', 'STILL_THERE', 'Diego P.', 20),
     rp('r6', 's6', 'STILL_THERE', 'Luis M.', 40),
-    rp('r7', 's5', 'STILL_THERE', 'Sofía T.', 60),
+    rp('r7', 's5', 'STILL_THERE', 'Sofia T.', 60),
     rp('r8', 's3', 'GONE', 'Luis M.', 80),
-    rp('r9', 's3', 'GONE', 'Sofía T.', 70),
+    rp('r9', 's3', 'GONE', 'Sofia T.', 70),
   ];
   const mkC = (id: string, company: string, title: string, howTo: string, kind: Contest['kind'], start: number, ref: string, author: string): Contest => ({
     id,
@@ -69,10 +69,10 @@ function seed(): State {
     createdAt: min(-90),
   });
   const contests = [
-    mkC('c1', 'Helix Data', 'Sorteo de mochila', 'Estar en el stand a la hora exacta. Si no estás, sortean otra vez.', 'TIMED', 25, 'Stand 980, segundo piso', 'Sofía T.'),
-    mkC('c4', 'Nimbus Labs', 'Demo + tote bag', 'Pasa por el stand, mira la demo y escanea tu gafete.', 'VISIT', 4 * 60, 'Pasillo C', 'Luis M.'),
-    mkC('c2', 'Quark Cloud', 'Rifa de termos', 'Pide un número en el mostrador antes de las 8 pm y vuelve al sorteo.', 'TICKET', 6 * 60, 'Esquina del Expo, entrada norte', 'Marta G.'),
-    mkC('c3', 'Pixel Forge', 'Reto de gorra #swag', 'Resuelve el reto en 10 minutos. Ganan los 3 más rápidos.', 'VISIT', 26 * 60, 'Mesa junto a la entrada', 'Diego P.'),
+    mkC('c1', 'Helix Data', 'Backpack raffle', 'Be at the booth at the exact time. If you are not there, they draw again.', 'TIMED', 25, 'Booth 980, second floor', 'Sofia T.'),
+    mkC('c4', 'Nimbus Labs', 'Demo + tote bag', 'Stop by the booth, watch the demo and scan your badge.', 'VISIT', 4 * 60, 'Aisle C', 'Luis M.'),
+    mkC('c2', 'Quark Cloud', 'Thermos raffle', 'Get a number at the counter before 8 pm and come back for the draw.', 'TICKET', 6 * 60, 'Expo corner, north entrance', 'Marta G.'),
+    mkC('c3', 'Pixel Forge', '#swag cap challenge', 'Solve the challenge in 10 minutes. The 3 fastest win.', 'VISIT', 26 * 60, 'Table next to the entrance', 'Diego P.'),
   ];
   return { swags, reports, contests, alerts: [], saved: [] };
 }
@@ -123,7 +123,7 @@ export const demoApi: Api = {
   },
   async confirmSignUp(_email, code) {
     await wait(null, 300);
-    if (code.trim() !== '123456') throw Object.assign(new Error('código incorrecto'), { name: 'CodeMismatchException' });
+    if (code.trim() !== '123456') throw Object.assign(new Error('wrong code'), { name: 'CodeMismatchException' });
   },
   async resendCode() {
     await wait(null, 200);
@@ -133,7 +133,7 @@ export const demoApi: Api = {
   },
   async resetPassword(_email, code) {
     await wait(null, 300);
-    if (code.trim() !== '123456') throw Object.assign(new Error('código incorrecto'), { name: 'CodeMismatchException' });
+    if (code.trim() !== '123456') throw Object.assign(new Error('wrong code'), { name: 'CodeMismatchException' });
   },
   async signOut() {
     localStorage.removeItem(AUTH);

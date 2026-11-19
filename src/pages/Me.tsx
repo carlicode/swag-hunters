@@ -1,3 +1,4 @@
+import { getLang, tr as t } from '../i18n';
 import { useState } from 'react';
 import { AlertControl } from '../components/AlertControl';
 import { Seg } from '../components/Seg';
@@ -28,18 +29,18 @@ export function Me() {
             <p className="mono muted" style={{ fontSize: 12 }}>{user.email}{user.country ? ` · ${user.country}` : ''}</p>
           </div>
         </div>
-        <button className="btn small" onClick={() => void api.signOut()}>Salir</button>
+        <button className="btn small" onClick={() => void api.signOut()}>{t('me.signOut')}</button>
       </div>
 
       <Seg
-        label="Sección"
+        label={t('me.section')}
         value={tab}
         onChange={setTab}
         className="left"
         options={[
-          { value: 'saved', label: `Guardados ${savedSwags.length}` },
-          { value: 'alerts', label: `Alertas ${pending.length}` },
-          { value: 'mine', label: 'Mis aportes' },
+          { value: 'saved', label: t('me.saved', { n: savedSwags.length }) },
+          { value: 'alerts', label: t('me.alerts', { n: pending.length }) },
+          { value: 'mine', label: t('me.mine') },
         ]}
       />
 
@@ -47,8 +48,8 @@ export function Me() {
         savedSwags.length ? (
           <div className="grid two">{savedSwags.map((s) => <SwagRow key={s.id} swag={s} status={statusOf(s)} />)}</div>
         ) : (
-          <Empty title="Aún no guardas nada" text="Desliza a la derecha en Descubrir para guardar los swags que quieres conseguir.">
-            <button className="btn primary" onClick={() => go('descubrir')}>Ir a descubrir</button>
+          <Empty title={t('me.emptySavedTitle')} text={t('me.emptySavedText')}>
+            <button className="btn primary" onClick={() => go('descubrir')}>{t('me.goDiscover')}</button>
           </Empty>
         )
       )}
@@ -64,7 +65,7 @@ export function Me() {
                   <a href={`#/concurso/${a.contestId}`}>
                     <span className="label">{a.company}</span>
                     <h3>{a.title}</h3>
-                    <div className="sub"><span className="mono">aviso {a.minutesBefore} min antes</span></div>
+                    <div className="sub"><span className="mono">{t('me.alertEntry', { n: a.minutesBefore })}</span></div>
                   </a>
                   {c && <AlertControl contest={c} />}
                 </div>
@@ -72,8 +73,8 @@ export function Me() {
             })}
           </div>
         ) : (
-          <Empty title="No tienes alertas" text="En Concursos toca la campana para recibir un correo unos minutos antes.">
-            <button className="btn primary" onClick={() => go('concursos')}>Ver concursos</button>
+          <Empty title={t('me.noAlertsTitle')} text={t('me.noAlertsText')}>
+            <button className="btn primary" onClick={() => go('concursos')}>{t('me.seeContests')}</button>
           </Empty>
         )
       )}
@@ -81,9 +82,9 @@ export function Me() {
       {tab === 'mine' && (
         mineSwags.length + mineContests.length ? (
           <div className="stack">
-            {mineSwags.length > 0 && <span className="label">Swags · {mineSwags.length}</span>}
+            {mineSwags.length > 0 && <span className="label">{t('me.swagsCount', { n: mineSwags.length })}</span>}
             <div className="grid two">{mineSwags.map((s) => <SwagRow key={s.id} swag={s} status={statusOf(s)} />)}</div>
-            {mineContests.length > 0 && <span className="label">Concursos · {mineContests.length}</span>}
+            {mineContests.length > 0 && <span className="label">{t('me.contestsCount', { n: mineContests.length })}</span>}
             {mineContests.map((c) => (
               <a className="lcard" key={c.id} href={`#/concurso/${c.id}`}>
                 <div className="meta grow"><span className="label">{c.company}</span><h3>{c.title}</h3><div className="sub mono">{fmtDay(c.startsAt)} · {fmtTime(c.startsAt)}</div></div>
@@ -91,20 +92,20 @@ export function Me() {
             ))}
           </div>
         ) : (
-          <Empty title="Todavía no subes nada" text="Cuando encuentres swag o un concurso, súbelo y ayuda al resto.">
-            <button className="btn primary" onClick={() => go('nuevo')}>Subir swag</button>
+          <Empty title={t('me.nothingTitle')} text={t('me.nothingText')}>
+            <button className="btn primary" onClick={() => go('nuevo')}>{t('disc.uploadSwag')}</button>
           </Empty>
         )
       )}
 
       <hr className="rule" />
       <p className="mono muted" style={{ fontSize: 11.5, lineHeight: 1.6 }}>
-        SWAG HUNTERS es una app no oficial hecha por la comunidad. No tiene relación con AWS ni con re:Invent. Las horas son de Las Vegas (PT).
-        {' '}<a href="#/privacidad">Privacidad</a> · <a href="#/terminos">Términos</a>
+        {t('me.footer')}
+        {' '}<a href="#/privacidad">{t('me.privacy')}</a> · <a href="#/terminos">{t('me.terms')}</a>
       </p>
       {api.demo && (
-        <button className="btn ghost small" style={{ alignSelf: 'flex-start' }} onClick={() => { localStorage.clear(); location.reload(); }}>
-          Reiniciar la demo
+        <button className="btn ghost small" style={{ alignSelf: 'flex-start' }} onClick={() => { const l = getLang(); localStorage.clear(); localStorage.setItem('swag-hunters-lang', l); location.reload(); }}>
+          {t('me.resetDemo')}
         </button>
       )}
     </>

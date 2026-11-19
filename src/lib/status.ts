@@ -1,3 +1,4 @@
+import { tr } from '../i18n';
 import type { Swag, SwagReport } from './types';
 
 export type SwagState = 'LIVE' | 'RECENT' | 'STALE' | 'MAYBE_GONE' | 'GONE';
@@ -26,12 +27,12 @@ export function swagStatus(swag: Swag, reports: SwagReport[], now = Date.now()):
   const lastSeen = new Date(lastConfirm).toISOString();
   const confirmations = confirms.length + 1; // +1 por quien lo subió
 
-  if (goneAuthors.size >= 2) return { state: 'GONE', lastSeen, confirmations, label: 'Se acabó' };
-  if (goneAuthors.size === 1) return { state: 'MAYBE_GONE', lastSeen, confirmations, label: 'Quizá se acabó' };
+  if (goneAuthors.size >= 2) return { state: 'GONE', lastSeen, confirmations, label: tr('status.gone') };
+  if (goneAuthors.size === 1) return { state: 'MAYBE_GONE', lastSeen, confirmations, label: tr('status.maybeGone') };
   const age = now - lastConfirm;
-  if (age < 45 * MIN) return { state: 'LIVE', lastSeen, confirmations, label: 'Disponible ahora' };
-  if (age < 3 * 60 * MIN) return { state: 'RECENT', lastSeen, confirmations, label: 'Visto hoy' };
-  return { state: 'STALE', lastSeen, confirmations, label: 'Sin confirmar' };
+  if (age < 45 * MIN) return { state: 'LIVE', lastSeen, confirmations, label: tr('status.live') };
+  if (age < 3 * 60 * MIN) return { state: 'RECENT', lastSeen, confirmations, label: tr('status.recent') };
+  return { state: 'STALE', lastSeen, confirmations, label: tr('status.stale') };
 }
 
 /** Orden para descubrir: primero lo que está disponible y confirmado hace poco; al final lo agotado. */

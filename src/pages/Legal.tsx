@@ -1,12 +1,16 @@
+import { useI18n } from '../i18n';
+import { LangSwitch } from '../i18n/LangSwitch';
 import type { ReactNode } from 'react';
 
 // Correo de contacto que se muestra en las páginas legales. Se define al compilar: VITE_CONTACT_EMAIL=tu@correo.com
 const CONTACT = import.meta.env.VITE_CONTACT_EMAIL as string | undefined;
 const UPDATED = '14 de noviembre de 2026';
 const KEEP_UNTIL = '3 de enero de 2027';
+const UPDATED_EN = 'November 14, 2026';
+const KEEP_UNTIL_EN = 'January 3, 2027';
 
 const Contact = () =>
-  CONTACT ? <a href={`mailto:${CONTACT}`}>{CONTACT}</a> : <strong>[falta definir el correo de contacto]</strong>;
+  CONTACT ? <a href={`mailto:${CONTACT}`}>{CONTACT}</a> : <strong>[contact email not set]</strong>;
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -17,7 +21,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-function Privacy() {
+function PrivacyEs() {
   return (
     <>
       <h1 style={{ fontSize: 28 }}>Política de privacidad</h1>
@@ -67,7 +71,7 @@ function Privacy() {
   );
 }
 
-function Terms() {
+function TermsEs() {
   return (
     <>
       <h1 style={{ fontSize: 28 }}>Términos de uso</h1>
@@ -107,21 +111,115 @@ function Terms() {
   );
 }
 
+
+function PrivacyEn() {
+  return (
+    <>
+      <h1 style={{ fontSize: 28 }}>Privacy policy</h1>
+      <p className="mono muted" style={{ fontSize: 12 }}>Last updated: {UPDATED_EN}</p>
+      <p>
+        SWAG HUNTERS is an unofficial, community-made app (Carli Code, @carli.code) to find swag and contests during AWS re:Invent 2026.
+        It has no relation to Amazon Web Services or re:Invent. Here we explain what data we use and why.
+      </p>
+
+      <Section title="What data we receive">
+        <p><strong>When you create your account</strong>: your name, your country, your email and a password you choose. Amazon Cognito stores the password encrypted and we never see it. We email you a code to confirm the email is yours and, if you need it, to recover your password.</p>
+        <p><strong>What you post</strong>: photos of booths and swag, text (company, what it is, how to get it, references, tips), "still there" or "gone" reports, contests and the swag you save.</p>
+        <p><strong>Your alerts</strong>: the contest, the time and how many minutes before you want the reminder, along with your email to send it.</p>
+        <p><strong>Content reports</strong> you send about other people's posts.</p>
+      </Section>
+
+      <Section title="What we use it for">
+        <p>To let you sign in, show who posted each swag (with your name), email you the alerts you ask for and keep the content tidy and free of abuse.</p>
+        <p>Next to what you post we show <strong>your first name and the initial of your last name</strong> (for example, "Ana R."), visible to other signed-in people. Your email is never shown to other people.</p>
+        <p>We don't sell your data, we don't show ads and we don't use analytics or tracking tools.</p>
+      </Section>
+
+      <Section title="Who we share it with">
+        <p>Only with the services that make the app work: Amazon Web Services (Cognito for accounts, DynamoDB and S3 to store data, and Lambda and SES to send emails). We don't share it with anyone else.</p>
+      </Section>
+
+      <Section title="How long we keep it">
+        <p>Until <strong>{KEEP_UNTIL_EN}</strong>, a few weeks after the event. After that we delete accounts, posts, photos and alerts.</p>
+      </Section>
+
+      <Section title="Your rights">
+        <p>You can cancel your alerts from the app at any time. To have your account and everything you posted deleted before that date, write to <Contact /> and we will do it within 7 days.</p>
+      </Section>
+
+      <Section title="Storage in your browser">
+        <p>We store in your browser what is needed to keep your session, remember your language and remember which swag you passed in the deck. We don't use advertising cookies.</p>
+      </Section>
+
+      <Section title="Minors and changes">
+        <p>The app is not aimed at children under 13. If we change this policy, we will update the date above.</p>
+      </Section>
+
+      <Section title="Contact">
+        <p>For any question about your data: <Contact />.</p>
+      </Section>
+    </>
+  );
+}
+
+function TermsEn() {
+  return (
+    <>
+      <h1 style={{ fontSize: 28 }}>Terms of use</h1>
+      <p className="mono muted" style={{ fontSize: 12 }}>Last updated: {UPDATED_EN}</p>
+      <p>By using SWAG HUNTERS you accept these terms. They are few and simple.</p>
+
+      <Section title="What this app is">
+        <p>A free, unofficial, community-made tool to share where there is swag and contests during AWS re:Invent 2026. It is not affiliated with, sponsored or endorsed by Amazon Web Services or re:Invent. Company and event names belong to their owners.</p>
+      </Section>
+
+      <Section title="The community provides the information">
+        <p>What you see is posted by other people. We don't guarantee it is accurate or that the swag or contest is still available. The conditions to get swag are set by the companies, not by this app. Check at the booth.</p>
+      </Section>
+
+      <Section title="What you can't do">
+        <p>Post false, misleading or offensive content, or content that infringes other people's rights.</p>
+        <p>Upload photos where people can be identified without their consent. Photograph the booth or the product, not people.</p>
+        <p>Spam, impersonate another person or a company, or try to access data that isn't yours.</p>
+      </Section>
+
+      <Section title="What you post">
+        <p>You still own your content. By posting it you give us permission to show it to other people inside the app while it runs. You guarantee you have the right to share it.</p>
+      </Section>
+
+      <Section title="Moderation">
+        <p>We may remove content or accounts that break these rules, without notice. You can report any post with the "Report content" button.</p>
+      </Section>
+
+      <Section title="No warranties">
+        <p>The app is provided as is, with no availability guarantees. We are not responsible for swag you don't find, contests you don't win or alerts that arrive late or don't arrive.</p>
+      </Section>
+
+      <Section title="Contact">
+        <p>Questions or reports: <Contact />. See also the <a href="#/privacidad">privacy policy</a>.</p>
+      </Section>
+    </>
+  );
+}
+
 /** Páginas públicas: se ven sin iniciar sesión, porque Google exige una dirección abierta para la política de privacidad. */
 export function LegalPage({ kind }: { kind: 'privacidad' | 'terminos' }) {
+  const { lang, t } = useI18n();
+  const Body = kind === 'privacidad' ? (lang === 'es' ? PrivacyEs : PrivacyEn) : lang === 'es' ? TermsEs : TermsEn;
   return (
     <div className="app">
       <header className="topbar">
         <a className="wordmark" href="#/"><i />SWAG<span>/</span>HUNTERS</a>
         <nav className="row" style={{ gap: 14, fontSize: 13 }} aria-label="Legal">
-          <a href="#/privacidad" aria-current={kind === 'privacidad' ? 'page' : undefined}>Privacidad</a>
-          <a href="#/terminos" aria-current={kind === 'terminos' ? 'page' : undefined}>Términos</a>
+          <a href="#/privacidad" aria-current={kind === 'privacidad' ? 'page' : undefined}>{t('legal.privacy')}</a>
+          <a href="#/terminos" aria-current={kind === 'terminos' ? 'page' : undefined}>{t('legal.terms')}</a>
+          <LangSwitch className="small" />
         </nav>
       </header>
       <main className="page legal" style={{ paddingBottom: 60 }}>
-        {kind === 'privacidad' ? <Privacy /> : <Terms />}
+        <Body />
         <hr className="rule" />
-        <a className="btn small" style={{ alignSelf: 'flex-start' }} href="#/">Volver a la app</a>
+        <a className="btn small" style={{ alignSelf: 'flex-start' }} href="#/">{t('legal.backToApp')}</a>
       </main>
     </div>
   );

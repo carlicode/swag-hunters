@@ -55,6 +55,7 @@ const schema = a.schema({
       company: a.string().required(),
       startsAt: a.datetime().required(),
       minutesBefore: a.integer().required(),
+      lang: a.string(), // 'en' | 'es': idioma del correo de alerta
       fireAt: a.datetime().required(),
       email: a.string().required(),
       sentFlag: a.string().required(), // N = pendiente, Y = enviada, X = vencida

@@ -15,8 +15,8 @@ const FROM = process.env.FROM_EMAIL ?? 'swag@carlicode.com';
 // Alertas con más de 10 minutos de retraso respecto a la hora del concurso ya no sirven.
 const GRACE_MS = 10 * 60 * 1000;
 
-const timePT = (iso: string) =>
-  new Intl.DateTimeFormat('en-US', {
+const timePT = (iso: string, lang: string) =>
+  new Intl.DateTimeFormat(lang === 'es' ? 'es' : 'en-US', {
     timeZone: 'America/Los_Angeles',
     weekday: 'short',
     hour: 'numeric',
@@ -37,7 +37,19 @@ export const handler = async () => {
       await client.models.Alert.update({ id: alert.id, sentFlag: 'X' });
       continue;
     }
-    const when = timePT(alert.startsAt);
+    const es = alert.lang === 'es';
+    const when = timePT(alert.startsAt, es ? 'es' : 'en');
+    const n = alert.minutesBefore;
+    const subject = es ? `En ${n} min: ${alert.title} (${alert.company})` : `In ${n} min: ${alert.title} (${alert.company})`;
+    const body = es
+      ? `${alert.company}: ${alert.title}\n` +
+        `Empieza a las ${when} (hora de Las Vegas), en ${n} minutos.\n\n` +
+        `Abre SWAG HUNTERS para ver qué hay que hacer: https://swag.carlicode.com/#/concurso/${alert.contestId}\n\n` +
+        `App no oficial, sin relación con AWS ni re:Invent.`
+      : `${alert.company}: ${alert.title}\n` +
+        `Starts at ${when} (Las Vegas time), in ${n} minutes.\n\n` +
+        `Open SWAG HUNTERS to see what to do: https://swag.carlicode.com/#/concurso/${alert.contestId}\n\n` +
+        `Unofficial app, not related to AWS or re:Invent.`;
     try {
       await ses.send(
         new SendEmailCommand({
@@ -45,16 +57,8 @@ export const handler = async () => {
           Destination: { ToAddresses: [alert.email] },
           Content: {
             Simple: {
-              Subject: { Data: `En ${alert.minutesBefore} min: ${alert.title} (${alert.company})` },
-              Body: {
-                Text: {
-                  Data:
-                    `${alert.company}: ${alert.title}\n` +
-                    `Empieza a las ${when} (hora de Las Vegas), en ${alert.minutesBefore} minutos.\n\n` +
-                    `Abre SWAG HUNTERS para ver qué hay que hacer.\n\n` +
-                    `App no oficial, sin relación con AWS ni re:Invent.`,
-                },
-              },
+              Subject: { Data: subject },
+              Body: { Text: { Data: body } },
             },
           },
         }),

@@ -360,3 +360,13 @@ p { margin: 0; }
 .pw-btn .pw-shut { opacity: 0; transform: scale(0.7) rotate(-12deg); }
 .pw-btn[aria-pressed='true'] .pw-open { opacity: 0; transform: scale(0.7) rotate(12deg); }
 .pw-btn[aria-pressed='true'] .pw-shut { opacity: 1; transform: none; color: var(--accent-text); }
+
+/* Interruptor de idioma EN | ES */
+.seg.small { padding: 2px; border-radius: 9px; }
+.seg.small button { padding: 4px 9px; font-size: 10.5px; border-radius: 7px; }
+.topbar .lang-switch { margin-left: auto; }
+@media (min-width: 900px) {
+  /* En escritorio la barra de pestañas ocupa la derecha del encabezado: el idioma va junto al logo. */
+  .topbar { justify-content: flex-start; }
+  .topbar .lang-switch { margin-left: 18px; }
+}

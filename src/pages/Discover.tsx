@@ -1,3 +1,4 @@
+import { tr as t } from '../i18n';
 import { useMemo, useState } from 'react';
 import { Deck } from '../components/Deck';
 import { Seg } from '../components/Seg';
@@ -52,37 +53,37 @@ export function Discover() {
     }
   };
 
-  if (loading) return <div className="spin" role="status" aria-label="Cargando" />;
+  if (loading) return <div className="spin" role="status" aria-label={t('common.loading')} />;
 
   return (
     <>
       <div className="row between">
         <p className="mono muted" style={{ fontSize: 12, lineHeight: 1.35 }}>
-          <strong style={{ color: 'var(--fg)' }}>{all.filter((i) => i.status.state === 'LIVE').length}</strong> disponibles ahora
+          <strong style={{ color: 'var(--fg)' }}>{all.filter((i) => i.status.state === 'LIVE').length}</strong> {t('disc.availableNow')}
           <br />
-          {filtered.length} swags en total
+          {t('disc.total', { n: filtered.length })}
         </p>
         <Seg
-          label="Vista"
+          label={t('disc.view')}
           value={mode}
           onChange={setMode}
           options={[
-            { value: 'deck', label: <><IconGrid style={{ width: 14, verticalAlign: -2 }} /> Mazo</> },
-            { value: 'list', label: <><IconList style={{ width: 14, verticalAlign: -2 }} /> Lista</> },
+            { value: 'deck', label: <><IconGrid style={{ width: 14, verticalAlign: -2 }} /> {t('disc.deck')}</> },
+            { value: 'list', label: <><IconList style={{ width: 14, verticalAlign: -2 }} /> {t('disc.list')}</> },
           ]}
         />
       </div>
 
       <div className="row">
-        <input className="input" placeholder="Buscar empresa o swag" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buscar" />
+        <input className="input" placeholder={t('disc.search')} value={q} onChange={(e) => setQ(e.target.value)} aria-label={t('disc.searchAria')} />
         <button className="btn small" aria-pressed={showGone} onClick={() => setShowGone((v) => !v)} style={showGone ? { borderColor: 'var(--accent)' } : undefined}>
-          {showGone ? 'Con agotados' : 'Sin agotados'}
+          {showGone ? t('disc.showingGone') : t('disc.hidingGone')}
         </button>
       </div>
 
       {swags.length === 0 && (
-        <Empty title="Todavía no hay swag" text="Sé la primera persona en subir uno. Toma una foto del stand y cuenta cómo conseguirlo.">
-          <button className="btn primary" onClick={() => go('nuevo')}>Subir swag</button>
+        <Empty title={t('disc.emptyTitle')} text={t('disc.emptyText')}>
+          <button className="btn primary" onClick={() => go('nuevo')}>{t('disc.uploadSwag')}</button>
         </Empty>
       )}
 
@@ -92,15 +93,15 @@ export function Discover() {
             items={deckItems}
             onSave={(s) => {
               void toggleSaved(s.id);
-              toast('Guardado en tu lista');
+              toast(t('disc.savedToast'));
             }}
             onPass={(s) => pass(s.id)}
           />
         ) : (
-          <Empty title="Ya viste todo" text="No quedan swags nuevos con estos filtros. Mira los que guardaste o vuelve a ver los que pasaste.">
+          <Empty title={t('disc.allSeenTitle')} text={t('disc.allSeenText')}>
             <div className="row wrap" style={{ justifyContent: 'center' }}>
-              <button className="btn" onClick={resetPassed}>Ver los pasados otra vez</button>
-              <button className="btn primary" onClick={() => go('nuevo')}>Subir swag</button>
+              <button className="btn" onClick={resetPassed}>{t('disc.seePassed')}</button>
+              <button className="btn primary" onClick={() => go('nuevo')}>{t('disc.uploadSwag')}</button>
             </div>
           </Empty>
         )
@@ -109,7 +110,7 @@ export function Discover() {
       {swags.length > 0 && mode === 'list' && (
         <div className="grid two">
           {filtered.map((i) => <SwagRow key={i.swag.id} swag={i.swag} status={i.status} />)}
-          {filtered.length === 0 && <Empty title="Sin resultados" text="Prueba con otro nombre." />}
+          {filtered.length === 0 && <Empty title={t('disc.noResultsTitle')} text={t('disc.noResultsText')} />}
         </div>
       )}
     </>

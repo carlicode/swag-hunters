@@ -1,3 +1,4 @@
+import { tr as t, type Key } from '../i18n';
 import { useMemo, useState } from 'react';
 import { AlertControl } from '../components/AlertControl';
 import { IconPlus } from '../components/icons';
@@ -7,11 +8,7 @@ import type { ContestKind } from '../lib/types';
 import { go } from '../router';
 import { useStore } from '../store';
 
-export const KIND_LABEL: Record<ContestKind, string> = {
-  VISIT: 'Ir al stand',
-  TICKET: 'Pedir ticket',
-  TIMED: 'Hora fija',
-};
+export const kindLabel = (k: ContestKind) => t(`c.kind.${k}` as Key);
 
 export function Contests() {
   const { contests, alerts, loading } = useStore();
@@ -33,21 +30,21 @@ export function Contests() {
     return [...m.entries()];
   }, [list]);
 
-  if (loading) return <div className="spin" role="status" aria-label="Cargando" />;
+  if (loading) return <div className="spin" role="status" aria-label={t('common.loading')} />;
 
   return (
     <>
       <div className="row between wrap">
         <div>
-          <h1 style={{ fontSize: 24 }}>Concursos</h1>
-          <p className="mono muted" style={{ fontSize: 12 }}>{upcoming.length} por venir · {alerts.filter((a) => a.sentFlag === 'N').length} con alerta · hora de Las Vegas</p>
+          <h1 style={{ fontSize: 24 }}>{t('c.title')}</h1>
+          <p className="mono muted" style={{ fontSize: 12 }}>{t('c.stats', { upcoming: upcoming.length, alerts: alerts.filter((a) => a.sentFlag === 'N').length })}</p>
         </div>
-        <button className="btn primary small" onClick={() => go('nuevo-concurso')}><IconPlus style={{ width: 16 }} /> Agregar</button>
+        <button className="btn primary small" onClick={() => go('nuevo-concurso')}><IconPlus style={{ width: 16 }} /> {t('c.add')}</button>
       </div>
 
       {days.length === 0 && (
-        <Empty title="No hay concursos por ahora" text="Agrega uno: hora, qué hay que hacer y dónde. Los demás podrán poner su alerta.">
-          <button className="btn primary" onClick={() => go('nuevo-concurso')}>Agregar concurso</button>
+        <Empty title={t('c.emptyTitle')} text={t('c.emptyText')}>
+          <button className="btn primary" onClick={() => go('nuevo-concurso')}>{t('c.addContest')}</button>
         </Empty>
       )}
 
@@ -64,9 +61,9 @@ export function Contests() {
                   <span className="label">{c.company}</span>
                   <h3>{c.title}</h3>
                   <div className="sub">
-                    <span className="chip">{KIND_LABEL[c.kind]}</span>
+                    <span className="chip">{kindLabel(c.kind)}</span>
                     <span className={`chip ${u.soon ? 'soon' : ''}`}>{u.text}</span>
-                    {alert && <span className="mono">alerta −{alert.minutesBefore} min</span>}
+                    {alert && <span className="mono">{t('c.alertBadge', { n: alert.minutesBefore })}</span>}
                   </div>
                 </a>
                 <AlertControl contest={c} />
@@ -78,7 +75,7 @@ export function Contests() {
 
       {past.length > 0 && (
         <button className="btn ghost small" style={{ alignSelf: 'center' }} onClick={() => setShowPast((v) => !v)}>
-          {showPast ? 'Ocultar los que ya pasaron' : `Ver los que ya pasaron (${past.length})`}
+          {showPast ? t('c.hidePast') : t('c.showPast', { n: past.length })}
         </button>
       )}
     </>

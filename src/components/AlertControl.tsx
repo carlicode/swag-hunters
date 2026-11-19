@@ -1,3 +1,4 @@
+import { tr as t } from '../i18n';
 import { useState } from 'react';
 import { api } from '../lib/api';
 import { fmtTime } from '../lib/time';
@@ -19,15 +20,15 @@ export function AlertControl({ contest, wide = false }: { contest: Contest; wide
 
   async function save() {
     const fireAt = +new Date(contest.startsAt) - mins * 60_000;
-    if (fireAt < Date.now() - 30_000) return toast('Esa hora de aviso ya pasó. Elige menos minutos.');
+    if (fireAt < Date.now() - 30_000) return toast(t('al.tooLate'));
     setBusy(true);
     try {
       await api.createAlert(contest, mins);
       await refresh();
       setOpen(false);
-      toast(`Alerta lista: te avisamos ${mins} min antes`);
+      toast(t('al.ready', { n: mins }));
     } catch {
-      toast('No se pudo crear la alerta. Intenta otra vez.');
+      toast(t('al.fail'));
     } finally {
       setBusy(false);
     }
@@ -39,7 +40,7 @@ export function AlertControl({ contest, wide = false }: { contest: Contest; wide
       await api.deleteAlert(current.id);
       await refresh();
       setOpen(false);
-      toast('Alerta cancelada');
+      toast(t('al.cancelled'));
     } finally {
       setBusy(false);
     }
@@ -50,27 +51,26 @@ export function AlertControl({ contest, wide = false }: { contest: Contest; wide
       {wide ? (
         <button className={`btn ${current ? '' : 'primary'} block`} onClick={() => setOpen(true)} disabled={started}>
           <IconBell style={{ width: 18 }} />
-          {started ? 'Ya empezó' : current ? `Alerta ${current.minutesBefore} min antes · cambiar` : 'Avisarme por correo'}
+          {started ? t('al.started') : current ? t('al.change', { n: current.minutesBefore }) : t('al.emailMe')}
         </button>
       ) : (
-        <button className={`icon-btn ${current ? 'on' : ''}`} onClick={() => setOpen(true)} disabled={started} aria-label={current ? 'Editar alerta' : 'Crear alerta'} aria-pressed={!!current}>
+        <button className={`icon-btn ${current ? 'on' : ''}`} onClick={() => setOpen(true)} disabled={started} aria-label={current ? t('al.editAria') : t('al.createAria')} aria-pressed={!!current}>
           <IconBell />
         </button>
       )}
       {open && (
-        <Sheet title="Alerta por correo" onClose={() => setOpen(false)}>
+        <Sheet title={t('al.sheetTitle')} onClose={() => setOpen(false)}>
           <p className="muted" style={{ fontSize: 14 }}>
-            {contest.company}: {contest.title} empieza a las <strong className="mono" style={{ color: 'var(--fg)' }}>{fmtTime(contest.startsAt)}</strong> (hora de Las Vegas).
-            Te escribimos a <strong style={{ color: 'var(--fg)' }}>{user.email}</strong>.
+            {t('al.sheetText', { company: contest.company, title: contest.title, time: fmtTime(contest.startsAt), email: user.email ?? '' })}
           </p>
-          <div className="pills" role="group" aria-label="Minutos antes">
+          <div className="pills" role="group" aria-label={t('al.minutesAria')}>
             {OPTIONS.map((m) => (
-              <button key={m} className="pill" aria-pressed={mins === m} onClick={() => setMins(m)}>{m} min antes</button>
+              <button key={m} className="pill" aria-pressed={mins === m} onClick={() => setMins(m)}>{t('al.minBefore', { n: m })}</button>
             ))}
           </div>
-          {api.demo && <p className="banner">En la demo no se envían correos de verdad.</p>}
-          <button className="btn primary block" disabled={busy} onClick={() => void save()}>{current ? 'Actualizar alerta' : 'Crear alerta'}</button>
-          {current && <button className="btn bad block" disabled={busy} onClick={() => void cancel()}>Cancelar alerta</button>}
+          {api.demo && <p className="banner">{t('al.demoBanner')}</p>}
+          <button className="btn primary block" disabled={busy} onClick={() => void save()}>{current ? t('al.update') : t('al.create')}</button>
+          {current && <button className="btn bad block" disabled={busy} onClick={() => void cancel()}>{t('al.cancel')}</button>}
         </Sheet>
       )}
     </>

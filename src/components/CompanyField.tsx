@@ -1,3 +1,4 @@
+import { tr as t } from '../i18n';
 import { useId } from 'react';
 import { similarCompanies } from '../lib/company';
 import { Field } from './ui';
@@ -16,11 +17,11 @@ export function CompanyField({
   const options = similarCompanies(value, known);
   const exact = options.some((o) => o.toLowerCase() === value.trim().toLowerCase());
   return (
-    <Field label="Empresa" htmlFor={list + 'c'}>
-      <input id={list + 'c'} className="input" value={value} onChange={(e) => onChange(e.target.value)} placeholder="Ej. Nimbus Labs" list={list} autoComplete="off" />
+    <Field label={t('company.label')} htmlFor={list + 'c'}>
+      <input id={list + 'c'} className="input" value={value} onChange={(e) => onChange(e.target.value)} placeholder={t('company.placeholder')} list={list} autoComplete="off" />
       <datalist id={list}>{options.map((o) => <option key={o} value={o} />)}</datalist>
       {options.length > 0 && !exact && (
-        <div className="pills" aria-label="Empresas parecidas">
+        <div className="pills" aria-label={t('company.similarAria')}>
           {options.map((o) => (
             <button type="button" className="pill" key={o} onClick={() => onChange(o)}>{o}</button>
           ))}
